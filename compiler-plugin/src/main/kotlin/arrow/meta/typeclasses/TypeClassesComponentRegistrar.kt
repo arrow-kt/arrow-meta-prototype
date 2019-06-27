@@ -4,12 +4,19 @@ import arrow.meta.extensions.CompilerContext
 import arrow.meta.extensions.ExtensionPhase
 import arrow.meta.extensions.MetaComponentRegistrar
 import arrow.meta.higherkind.buildIrValueParameter
+import arrow.meta.higherkind.componentRegistry
+import arrow.meta.higherkind.componentStorage
+import arrow.meta.higherkind.registrationMap
+import arrow.meta.services.MetaPlatformDependentAnalyzerServices
 import arrow.meta.utils.MetaBodyResolver
 import arrow.meta.utils.MetaCallResolver
+import arrow.meta.utils.MetaDataFlowValueFactory
 import org.jetbrains.kotlin.backend.common.BackendContext
 import org.jetbrains.kotlin.backend.common.serialization.irrelevantOrigin
 import org.jetbrains.kotlin.container.StorageComponentContainer
+import org.jetbrains.kotlin.container.registerSingleton
 import org.jetbrains.kotlin.container.useImpl
+import org.jetbrains.kotlin.container.useInstance
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
@@ -18,6 +25,7 @@ import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
 import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.descriptors.annotations.Annotations
+import org.jetbrains.kotlin.frontend.di.configureModule
 import org.jetbrains.kotlin.ir.UNDEFINED_OFFSET
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.impl.IrClassImpl
@@ -40,23 +48,31 @@ class TypeClassesComponentRegistrar : MetaComponentRegistrar {
   override fun intercept(): List<ExtensionPhase> =
     meta(
       enableIr(),
-      storageComponent(
+      storageComponent( // does not know about dpended Services
         registerModuleComponents = { container: StorageComponentContainer, platform, moduleDescriptor ->
           container.useImpl<ExtensionResolutionCallChecker>()
           container.useImpl<TypeClassPlatformDiagnosticSuppressor>()
           container.useImpl<MetaCallResolver>()
           container.useImpl<MetaBodyResolver>()
-
-          //parentContainer?.registerSingleton(MetaCallResolver::class.java)
+          // container.useImpl<MetaDataFlowValueFactory>()
+          // container.useImpl<MetaPlatformDependentAnalyzerServices>() <- not sure if that works,
+          // because it is usually called woth container.configureModule
+          // only for my debugging
+          // val map = container.registrationMap()
+          // val d = map.map { "@typeName: ${it.key.typeName as String}\n* \t@instanceValue${it.value}" }
+          //val parentContainer = container.unknownContext.container
+          //parentContainer.registerSingleton(MetaCallResolver::class.java)
 
         },
         check = { declaration, descriptor, context ->
 
         }
       ),
-      analysys(
+      analysys(// here the container knows his dependet Services !!
+        // container is locked !!
         doAnalysis = { project, module, projectContext, files, bindingTrace, componentProvider ->
-          componentProvider as StorageComponentContainer
+          val bool = projectContext.project.isOpen
+          val a = componentProvider as StorageComponentContainer
           println("analysys.doAnalysis")
           null
         },

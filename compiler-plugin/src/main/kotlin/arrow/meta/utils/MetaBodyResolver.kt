@@ -146,12 +146,13 @@ class MetaBodyResolver(
     trace: BindingTrace,
     function: KtDeclarationWithBody,
     functionDescriptor: FunctionDescriptor,
-    scope: LexicalScope,
+    scope: LexicalScope, // symbols and where they come from
     beforeBlockBody: Function1<LexicalScope, DataFlowInfo>?,
     // Creates wrapper scope for header resolution if necessary (see resolveSecondaryConstructorBody)
     headerScopeFactory: Function1<LexicalScope, LexicalScope>?
   ) {
     var scope = scope
+    // add new members
     PreliminaryDeclarationVisitor.createForDeclaration(function, trace, languageVersionSettings)
 
     val receiverParameterDescriptor = functionDescriptor.dispatchReceiverParameter
@@ -160,15 +161,15 @@ class MetaBodyResolver(
       val descriptor = lazyClassReceiverParameterDescriptor!!.containingDeclaration
       if (descriptor is LazyClassDescriptor) {
         val lazyClassDescriptor = descriptor
-        val memberScope = lazyClassDescriptor.unsubstitutedMemberScope
+        val memberScope = lazyClassDescriptor.unsubstitutedMemberScope // @this without alterations
         if (memberScope is LazyClassMemberScope) {
           val lazyClassMemberScope = memberScope
           val constructor = lazyClassMemberScope.getPrimaryConstructor()
           if (constructor != null) {
             val members = constructor.valueParameters
             for (member in members) {
-              if (member.isWithAnnotated) {
-                scope = getScopeForExtensionParameter(functionDescriptor, scope, member)
+              if (member.isWithAnnotated) { // has with annotation
+                scope = getScopeForExtensionParameter(functionDescriptor, scope, member) // look for broader scope
               }
             }
           }
@@ -248,6 +249,7 @@ class MetaBodyResolver(
       Modality.FINAL,
       valueParameterDescriptor.visibility)
     innerScope = LexicalScopeImpl(innerScope, ownerDescriptor, true, extensionReceiverParamDescriptor, LexicalScopeKind.FUNCTION_INNER_SCOPE)
+    // this adds the new scope
     return innerScope
   }
 }

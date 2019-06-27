@@ -410,6 +410,9 @@ infix operator fun Any.plusAssign(valuePair: Pair<String, Any>) {
 val StorageComponentContainer.componentStorage: ComponentStorage
   get() = this["componentStorage"] //TODO we should test in the build all these fields exist
 
+fun StorageComponentContainer.registrationMap(): MutableMap<Type, Any> =
+  componentStorage.componentRegistry.registrationMap
+
 val ComponentStorage.componentRegistry: Any
   get() = this["registry"]
 
