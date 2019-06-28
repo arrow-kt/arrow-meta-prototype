@@ -78,3 +78,28 @@ abstract class MetaPlatformDependentAnalyzerServices {
   open fun dependencyOnBuiltIns(): ModuleInfo.DependencyOnBuiltIns =
     ModuleInfo.DependencyOnBuiltIns.LAST
 }
+
+/**
+ * As an Example implementation of a Platform consider this internal Jvm version in the compiler:
+ * Another example is the JsPlatformAnalyzerServices
+ */
+/*
+object JvmPlatformAnalyzerServices : PlatformDependentAnalyzerServices() {
+  override fun computePlatformSpecificDefaultImports(storageManager: StorageManager, result: MutableList<ImportPath>) {
+    result.add(ImportPath.fromString("kotlin.jvm.*"))
+
+    fun addAllClassifiersFromScope(scope: MemberScope) {
+      for (descriptor in scope.getContributedDescriptors(DescriptorKindFilter.CLASSIFIERS, MemberScope.ALL_NAME_FILTER)) {
+        result.add(ImportPath(DescriptorUtils.getFqNameSafe(descriptor), false))
+      }
+    }
+
+    for (builtInPackage in JvmBuiltIns(storageManager, JvmBuiltIns.Kind.FROM_CLASS_LOADER).builtInPackagesImportedByDefault) {
+      addAllClassifiersFromScope(builtInPackage.memberScope)
+    }
+  }
+
+  override val defaultLowPriorityImports: List<ImportPath> = listOf(ImportPath.fromString("java.lang.*"))
+
+  override val platformConfigurator: PlatformConfigurator = JvmPlatformConfigurator
+}*/

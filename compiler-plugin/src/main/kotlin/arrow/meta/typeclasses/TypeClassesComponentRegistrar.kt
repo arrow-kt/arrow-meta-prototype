@@ -8,9 +8,16 @@ import arrow.meta.higherkind.componentRegistry
 import arrow.meta.higherkind.componentStorage
 import arrow.meta.higherkind.registrationMap
 import arrow.meta.services.MetaPlatformDependentAnalyzerServices
+import arrow.meta.utils.MetaAnnotationResolver
 import arrow.meta.utils.MetaBodyResolver
 import arrow.meta.utils.MetaCallResolver
+import arrow.meta.utils.MetaContractDeserializer
 import arrow.meta.utils.MetaDataFlowValueFactory
+import arrow.meta.utils.MetaDeclarationScopeProvider
+import arrow.meta.utils.MetaDeserializationConfiguration
+import arrow.meta.utils.MetaSupertypeLoopChecker
+import arrow.meta.utils.MetaTypeSystemInferenceExtensionContext
+import arrow.meta.utils.MetaTypeSystemInferenceExtensionContextDelegate
 import org.jetbrains.kotlin.backend.common.BackendContext
 import org.jetbrains.kotlin.backend.common.serialization.irrelevantOrigin
 import org.jetbrains.kotlin.container.StorageComponentContainer
@@ -54,14 +61,21 @@ class TypeClassesComponentRegistrar : MetaComponentRegistrar {
           container.useImpl<TypeClassPlatformDiagnosticSuppressor>()
           container.useImpl<MetaCallResolver>()
           container.useImpl<MetaBodyResolver>()
+          // container.useImpl<MetaDeclarationScopeProvider>()
+          // container.useImpl<MetaTypeSystemInferenceExtensionContext>()
+          // container.useImpl<MetaTypeSystemInferenceExtensionContextDelegate>()
+          // container.useImpl<MetaDeserializationConfiguration>()
+          // container.useImpl<MetaContractDeserializer>()
+          // container.useImpl<MetaSupertypeLoopChecker>()
+          // container.useImpl<MetaAnnotationResolver>()
           // container.useImpl<MetaDataFlowValueFactory>()
           // container.useImpl<MetaPlatformDependentAnalyzerServices>() <- not sure if that works,
-          // because it is usually called woth container.configureModule
+          // because it is usually called with container.configureModule
           // only for my debugging
           // val map = container.registrationMap()
           // val d = map.map { "@typeName: ${it.key.typeName as String}\n* \t@instanceValue${it.value}" }
-          //val parentContainer = container.unknownContext.container
-          //parentContainer.registerSingleton(MetaCallResolver::class.java)
+          // val parentContainer = container.unknownContext.container
+          // parentContainer.registerSingleton(MetaCallResolver::class.java)
 
         },
         check = { declaration, descriptor, context ->
@@ -140,7 +154,6 @@ fun FunctionDescriptor.resolveCallArguments(): Unit {
     else it
   }
 }
-
 
 
 val ClassDescriptor.isExtensionAnnotated: Boolean
