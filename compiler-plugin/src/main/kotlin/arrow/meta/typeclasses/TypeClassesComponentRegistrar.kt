@@ -4,26 +4,14 @@ import arrow.meta.extensions.CompilerContext
 import arrow.meta.extensions.ExtensionPhase
 import arrow.meta.extensions.MetaComponentRegistrar
 import arrow.meta.higherkind.buildIrValueParameter
-import arrow.meta.higherkind.componentRegistry
-import arrow.meta.higherkind.componentStorage
-import arrow.meta.higherkind.registrationMap
-import arrow.meta.services.MetaPlatformDependentAnalyzerServices
-import arrow.meta.utils.MetaAnnotationResolver
+import arrow.meta.utils.MetaAdditionalClassPartsProvider
 import arrow.meta.utils.MetaBodyResolver
 import arrow.meta.utils.MetaCallResolver
-import arrow.meta.utils.MetaContractDeserializer
-import arrow.meta.utils.MetaDataFlowValueFactory
-import arrow.meta.utils.MetaDeclarationScopeProvider
-import arrow.meta.utils.MetaDeserializationConfiguration
-import arrow.meta.utils.MetaSupertypeLoopChecker
-import arrow.meta.utils.MetaTypeSystemInferenceExtensionContext
-import arrow.meta.utils.MetaTypeSystemInferenceExtensionContextDelegate
+import arrow.meta.utils.MetaPlatformDependentDeclarationFilter
 import org.jetbrains.kotlin.backend.common.BackendContext
 import org.jetbrains.kotlin.backend.common.serialization.irrelevantOrigin
 import org.jetbrains.kotlin.container.StorageComponentContainer
-import org.jetbrains.kotlin.container.registerSingleton
 import org.jetbrains.kotlin.container.useImpl
-import org.jetbrains.kotlin.container.useInstance
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
@@ -32,7 +20,6 @@ import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
 import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.descriptors.annotations.Annotations
-import org.jetbrains.kotlin.frontend.di.configureModule
 import org.jetbrains.kotlin.ir.UNDEFINED_OFFSET
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.impl.IrClassImpl
@@ -61,14 +48,8 @@ class TypeClassesComponentRegistrar : MetaComponentRegistrar {
           container.useImpl<TypeClassPlatformDiagnosticSuppressor>()
           container.useImpl<MetaCallResolver>()
           container.useImpl<MetaBodyResolver>()
-          // container.useImpl<MetaDeclarationScopeProvider>()
-          // container.useImpl<MetaTypeSystemInferenceExtensionContext>()
-          // container.useImpl<MetaTypeSystemInferenceExtensionContextDelegate>()
-          // container.useImpl<MetaDeserializationConfiguration>()
-          // container.useImpl<MetaContractDeserializer>()
-          // container.useImpl<MetaSupertypeLoopChecker>()
-          // container.useImpl<MetaAnnotationResolver>()
-          // container.useImpl<MetaDataFlowValueFactory>()
+          // container.useImpl<MetaPackageFragmentProvider>() <- @UnknownPhase
+          // container.useImpl<MetaConstraintSystemBuilder>() <- @UnknownPhase
           // container.useImpl<MetaPlatformDependentAnalyzerServices>() <- not sure if that works,
           // because it is usually called with container.configureModule
           // only for my debugging

@@ -7,7 +7,9 @@ apply plugin: 'kotlin-kapt'
 dependencies {
   compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
   compile "org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlin_version"
-
+  compile "org.jetbrains.kotlin:kotlin-source-sections-compiler-plugin:$kotlin_version"
+  compile "org.jetbrains.kotlin:kotlin-compiler:$kotlin_version"
+  compile "org.jetbrains.kotlin:kotlin-compiler-client-embeddable:$kotlin_version"
   compile "com.google.auto.service:auto-service:+"
   kapt "com.google.auto.service:auto-service:+"
 }

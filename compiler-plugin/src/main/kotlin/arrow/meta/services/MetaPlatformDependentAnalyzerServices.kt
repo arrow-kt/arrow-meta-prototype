@@ -6,6 +6,7 @@ import org.jetbrains.kotlin.config.LanguageVersionSettings
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.ImportPath
 import org.jetbrains.kotlin.resolve.PlatformConfigurator
+import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatformConfigurator
 import org.jetbrains.kotlin.storage.LockBasedStorageManager
 import org.jetbrains.kotlin.storage.StorageManager
 import java.util.ArrayList
@@ -34,7 +35,8 @@ abstract class MetaPlatformDependentAnalyzerServices {
       ArrayList<ImportPath>().apply {
         listOf(
           // Default imports in Kotlin
-          "kotlin.*"
+          "kotlin.*",
+          "arrow.core.*" // not working yet
           // "kotlin.annotation.*",
           // "kotlin.collections.*",
           // "kotlin.ranges.*",
@@ -103,3 +105,16 @@ object JvmPlatformAnalyzerServices : PlatformDependentAnalyzerServices() {
 
   override val platformConfigurator: PlatformConfigurator = JvmPlatformConfigurator
 }*/
+
+object ArrowPlatformAnalyzerServices : MetaPlatformDependentAnalyzerServices() {
+
+  override val defaultLowPriorityImports: List<ImportPath> = listOf(ImportPath.fromString("arrow.core..lang.*"))
+  override val platformConfigurator: PlatformConfigurator
+    get() = JvmPlatformConfigurator
+
+  override fun computePlatformSpecificDefaultImports(storageManager: StorageManager, result: MutableList<ImportPath>) {
+    result.add(ImportPath.fromString("arrow.core.*"))
+    println("ArrowPlatformAnalyzerServices.computePlatformSpecificDefaultImports: $storageManager")
+    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  }
+}
