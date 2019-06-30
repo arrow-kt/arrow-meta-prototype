@@ -9,8 +9,6 @@ import arrow.meta.utils.MetaCallResolver
 import org.jetbrains.kotlin.backend.common.BackendContext
 import org.jetbrains.kotlin.backend.common.serialization.irrelevantOrigin
 import org.jetbrains.kotlin.container.StorageComponentContainer
-import org.jetbrains.kotlin.container.registerSingleton
-import arrow.meta.utils.MetaDiagnosticReporter
 import org.jetbrains.kotlin.container.useImpl
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassKind
@@ -57,7 +55,6 @@ class TypeClassesComponentRegistrar : MetaComponentRegistrar {
           // val d = map.map { "@typeName: ${it.key.typeName as String}\n* \t@instanceValue${it.value}" }
           // val parentContainer = container.unknownContext.container
           // parentContainer.registerSingleton(MetaCallResolver::class.java)
-
         },
         check = { declaration, descriptor, context ->
 
@@ -134,7 +131,6 @@ fun FunctionDescriptor.resolveCallArguments(): Unit {
     else it
   }
 }
-
 
 
 val ClassDescriptor.isExtensionAnnotated: Boolean

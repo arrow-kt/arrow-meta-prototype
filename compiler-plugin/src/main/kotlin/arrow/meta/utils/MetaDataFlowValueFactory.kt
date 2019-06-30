@@ -14,7 +14,7 @@ import org.jetbrains.kotlin.types.KotlinType
 
 /***
  * @throws InvalidCardinalityException If not added correctly - the compiler requires a Singleton
- * Hence, we need to intercept the Singleton DataFlowValueFactoryImpl from the container with JavaReflection
+ * Hence, we need to intercept the Singleton [DataFlowValueFactoryImpl] from the container with JavaReflection
  * Delegate the functions we want to keep and pass the one we want to modify to the container as a new Singleton
  **/
 class MetaDataFlowValueFactory : DataFlowValueFactory {
