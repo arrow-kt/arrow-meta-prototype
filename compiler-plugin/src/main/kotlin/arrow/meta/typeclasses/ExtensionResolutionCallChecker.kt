@@ -1,10 +1,12 @@
 package arrow.meta.typeclasses
 
+import arrow.meta.higherkind.suppressDiagnostic
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.descriptors.CallableDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
 import org.jetbrains.kotlin.diagnostics.DiagnosticFactory1
+import org.jetbrains.kotlin.diagnostics.Errors
 import org.jetbrains.kotlin.diagnostics.Severity
 import org.jetbrains.kotlin.resolve.calls.checkers.CallChecker
 import org.jetbrains.kotlin.resolve.calls.checkers.CallCheckerContext
@@ -49,6 +51,8 @@ class ExtensionResolutionCallChecker : CallChecker {
                 key,
                 resolution.candidate
               )
+              context.suppressDiagnostic { diagnostic -> diagnostic.factory.name == Errors.NO_VALUE_FOR_PARAMETER.name }
+
             }
           }
         }

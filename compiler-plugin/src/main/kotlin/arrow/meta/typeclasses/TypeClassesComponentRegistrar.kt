@@ -4,13 +4,13 @@ import arrow.meta.extensions.CompilerContext
 import arrow.meta.extensions.ExtensionPhase
 import arrow.meta.extensions.MetaComponentRegistrar
 import arrow.meta.higherkind.buildIrValueParameter
-import arrow.meta.utils.MetaAdditionalClassPartsProvider
 import arrow.meta.utils.MetaBodyResolver
 import arrow.meta.utils.MetaCallResolver
-import arrow.meta.utils.MetaPlatformDependentDeclarationFilter
 import org.jetbrains.kotlin.backend.common.BackendContext
 import org.jetbrains.kotlin.backend.common.serialization.irrelevantOrigin
 import org.jetbrains.kotlin.container.StorageComponentContainer
+import org.jetbrains.kotlin.container.registerSingleton
+import arrow.meta.utils.MetaDiagnosticReporter
 import org.jetbrains.kotlin.container.useImpl
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassKind
@@ -66,7 +66,6 @@ class TypeClassesComponentRegistrar : MetaComponentRegistrar {
       analysys(// here the container knows his dependet Services !!
         // container is locked !!
         doAnalysis = { project, module, projectContext, files, bindingTrace, componentProvider ->
-          val bool = projectContext.project.isOpen
           val a = componentProvider as StorageComponentContainer
           println("analysys.doAnalysis")
           null
@@ -135,6 +134,7 @@ fun FunctionDescriptor.resolveCallArguments(): Unit {
     else it
   }
 }
+
 
 
 val ClassDescriptor.isExtensionAnnotated: Boolean
