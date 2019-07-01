@@ -1,3 +1,4 @@
+/*
 package arrow.core
 
 interface Kind<out F, out A>
@@ -23,6 +24,7 @@ typealias ListKOf<A> = Kind<ForListK, A>
 inline fun <A> ListKOf<A>.fix(): ListK<A> =
   this as ListK<A>
 
+*/
 /**
  * A wrapper data type also considered by the @extension mechanisms to forward type class
  * instance methods into both the wrapper and the wrapped data type. Ex. List<A>#foldMap(M: Monoid<A>)
@@ -33,7 +35,8 @@ inline fun <A> ListKOf<A>.fix(): ListK<A> =
  *
  * The type class @extension mechanism will project then all syntax generated for the Wrapper also into the Wrapped
  * type constructor as extension functions.
- */
+ *//*
+
 data class ListK<out A>(private val list: List<A>) : ListKOf<A>, List<A> by list {
 
   fun <B> flatMap(f: (A) -> ListKOf<B>): ListK<B> = list.flatMap { f(it).fix().list }.k()
@@ -96,3 +99,4 @@ data class Tuple2<out A, out B>(val a: A, val b: B) : Tuple2Of<A, B> {
 
   companion object
 }
+*/

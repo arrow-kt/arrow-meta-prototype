@@ -6,6 +6,8 @@ import arrow.meta.extensions.MetaComponentRegistrar
 import arrow.meta.higherkind.buildIrValueParameter
 import arrow.meta.utils.MetaBodyResolver
 import arrow.meta.utils.MetaCallResolver
+import arrow.meta.utils.MetaExpectActualTracker
+import arrow.meta.utils.MetaLazyClassContext
 import org.jetbrains.kotlin.backend.common.BackendContext
 import org.jetbrains.kotlin.backend.common.serialization.irrelevantOrigin
 import org.jetbrains.kotlin.container.StorageComponentContainer
@@ -46,6 +48,8 @@ class TypeClassesComponentRegistrar : MetaComponentRegistrar {
           container.useImpl<TypeClassPlatformDiagnosticSuppressor>()
           container.useImpl<MetaCallResolver>()
           container.useImpl<MetaBodyResolver>()
+          container.useImpl<MetaLazyClassContext>()
+
           // container.useImpl<MetaPackageFragmentProvider>() <- @UnknownPhase
           // container.useImpl<MetaConstraintSystemBuilder>() <- @UnknownPhase
           // container.useImpl<MetaPlatformDependentAnalyzerServices>() <- not sure if that works,
