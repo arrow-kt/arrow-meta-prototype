@@ -23,3 +23,8 @@ class MetaJvmTargetPlatform : TargetPlatform("JVM") {
     TODO()
   }
 }
+/*
+* enable Debvug mode in Arrow Meta
+* so delegate is missing
+*
+* */
