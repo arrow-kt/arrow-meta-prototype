@@ -1,4 +1,4 @@
-package arrow.meta.higherkind
+package arrow.meta.utils
 
 import org.jetbrains.kotlin.config.LanguageVersionSettings
 import org.jetbrains.kotlin.config.LanguageVersionSettingsImpl

@@ -1,4 +1,4 @@
-package arrow.meta.utils
+package arrow.meta.debug.unusedServices
 
 import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor
 import org.jetbrains.kotlin.descriptors.PackageFragmentProvider
@@ -8,14 +8,14 @@ import org.jetbrains.kotlin.name.Name
 /**
  * @UnknownPhase Not subscribable in Analysis Phase:
  */
-class MetaPackageFragmentProvider : PackageFragmentProvider{
+class MetaPackageFragmentProvider(val delegate: PackageFragmentProvider) : PackageFragmentProvider by delegate {
   override fun getPackageFragments(fqName: FqName): List<PackageFragmentDescriptor> {
     println("MetaPackageFragmentProvider.getPackageFragments: $fqName")
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    return delegate.getPackageFragments(fqName)
   }
 
   override fun getSubPackagesOf(fqName: FqName, nameFilter: (Name) -> Boolean): Collection<FqName> {
-    println("MetaPackageFragmentProvider.getSubPackagesOf: $fqName")
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    println("MetaPackageFragmentProvider.getSubPackagesOf: $fqName, $nameFilter")
+    return delegate.getSubPackagesOf(fqName, nameFilter)
   }
 }

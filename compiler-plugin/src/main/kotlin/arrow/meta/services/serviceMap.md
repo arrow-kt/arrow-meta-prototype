@@ -64,37 +64,37 @@
 @typeName: org.jetbrains.kotlin.incremental.components.ExpectActualTracker
 - [X] 	@instanceValueInstance: DoNothing
 @typeName: org.jetbrains.kotlin.resolve.calls.checkers.ApiVersionCallChecker
-- [ ] 	@instanceValueInstance: ApiVersionCallChecker
+- [S] 	@instanceValueInstance: ApiVersionCallChecker
 @typeName: org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowValueFactory
 - [X] 	@instanceValueSingleton: DataFlowValueFactoryImpl
 @typeName: org.jetbrains.kotlin.resolve.TypeResolver$TypeTransformerForTests
-- [ ] 	@instanceValueInstance: InternalFlexibleTypeTransformer
+- [C] 	@instanceValueInstance: InternalFlexibleTypeTransformer
 @typeName: org.jetbrains.kotlin.serialization.deserialization.AnnotationAndConstantLoader<A, C>
-- [ ] 	@instanceValueImplicit: BinaryClassAnnotationAndConstantLoaderImpl
+- [X] 	@instanceValueImplicit: BinaryClassAnnotationAndConstantLoaderImpl
 @typeName: org.jetbrains.kotlin.resolve.lazy.DelegationFilter
-- [ ] 	@instanceValueInstance: JvmDelegationFilter
+- [X] 	@instanceValueInstance: JvmDelegationFilter
 @typeName: org.jetbrains.kotlin.resolve.calls.checkers.DeprecatedCallChecker
-- [ ] 	@instanceValueInstance: DeprecatedCallChecker
+- [Special S] 	@instanceValueInstance: DeprecatedCallChecker
 @typeName: org.jetbrains.kotlin.com.intellij.openapi.extensions.AreaInstance
-- [ ] 	@instanceValueInstance: MockProject
+- [X] 	@instanceValueInstance: MockProject
 @typeName: org.jetbrains.kotlin.resolve.lazy.KotlinCodeAnalyzer
-- [ ] 	@instanceValueSingleton: ResolveSession
+- [X] 	@instanceValueSingleton: ResolveSession
 @typeName: org.jetbrains.kotlin.types.expressions.ExpressionTypingVisitor
-- [ ] 	@instanceValueImplicit: FunctionsTypingVisitor
+- [C] 	@instanceValueImplicit: FunctionsTypingVisitor
 @typeName: org.jetbrains.kotlin.resolve.OverridesBackwardCompatibilityHelper
-- [ ] 	@instanceValueInstance: JvmOverridesBackwardCompatibilityHelper
+- [X] 	@instanceValueInstance: JvmOverridesBackwardCompatibilityHelper
 @typeName: org.jetbrains.kotlin.resolve.jvm.platform.JavaGenericVarianceViolationTypeChecker
-- [ ] 	@instanceValueInstance: JavaGenericVarianceViolationTypeChecker
+- [X] 	@instanceValueInstance: JavaGenericVarianceViolationTypeChecker
 @typeName: org.jetbrains.kotlin.load.java.sources.JavaSourceElementFactory
-- [ ] 	@instanceValueSingleton: JavaSourceElementFactoryImpl
+- [X] 	@instanceValueSingleton: JavaSourceElementFactoryImpl
 @typeName: org.jetbrains.kotlin.resolve.calls.checkers.DslScopeViolationCallChecker
-- [ ] 	@instanceValueInstance: DslScopeViolationCallChecker
+- [X] 	@instanceValueInstance: DslScopeViolationCallChecker
 @typeName: org.jetbrains.kotlin.resolve.BindingTrace
-- [ ] 	@instanceValueInstance: NoScopeRecordCliBindingTrace
+- [X] 	@instanceValueInstance: NoScopeRecordCliBindingTrace
 @typeName: org.jetbrains.kotlin.resolve.jvm.checkers.JvmAnnotationsTargetNonExistentAccessorChecker
-- [ ] 	@instanceValueInstance: JvmAnnotationsTargetNonExistentAccessorChecker
+- [X] 	@instanceValueInstance: JvmAnnotationsTargetNonExistentAccessorChecker
 @typeName: org.jetbrains.kotlin.resolve.jvm.checkers.JavaClassOnCompanionChecker
-- [ ] 	@instanceValueInstance: JavaClassOnCompanionChecker
+- [X] 	@instanceValueInstance: JavaClassOnCompanionChecker
 @typeName: org.jetbrains.kotlin.serialization.deserialization.ClassDataFinder
 - [ ] 	@instanceValueImplicit: JavaClassDataFinder
 ## Stop1

@@ -1,17 +1,17 @@
-package arrow.meta.utils
+package arrow.meta.debug.resolution
 
 import org.jetbrains.kotlin.serialization.deserialization.DeserializationConfiguration
 
-class MetaDeserializationConfiguration: DeserializationConfiguration {
-  override val isJvmPackageNameSupported: Boolean = TODO()
+class MetaDeserializationConfiguration(val delegate: DeserializationConfiguration) : DeserializationConfiguration by delegate {
+  override val isJvmPackageNameSupported: Boolean = delegate.isJvmPackageNameSupported
 
-  override val readDeserializedContracts: Boolean = TODO()
+  override val readDeserializedContracts: Boolean = delegate.readDeserializedContracts
 
-  override val releaseCoroutines: Boolean = TODO()
+  override val releaseCoroutines: Boolean = delegate.releaseCoroutines
 
-  override val reportErrorsOnPreReleaseDependencies: Boolean = TODO()
+  override val reportErrorsOnPreReleaseDependencies: Boolean = delegate.reportErrorsOnPreReleaseDependencies
 
-  override val skipMetadataVersionCheck: Boolean = TODO()
+  override val skipMetadataVersionCheck: Boolean = delegate.skipMetadataVersionCheck
 
-  override val typeAliasesAllowed: Boolean = TODO()
+  override val typeAliasesAllowed: Boolean = delegate.typeAliasesAllowed
 }

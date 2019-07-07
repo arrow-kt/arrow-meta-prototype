@@ -1,4 +1,4 @@
-package arrow.meta.utils
+package arrow.meta.debug.resolution.singleton
 
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
@@ -15,7 +15,7 @@ import org.jetbrains.kotlin.types.KotlinType
 /***
  * @throws InvalidCardinalityException If not added correctly - the compiler requires a Singleton
  **/
-class MetaAnnotationResolver: AnnotationResolver() {
+class MetaAnnotationResolver(val delegate: AnnotationResolver) : AnnotationResolver() {
   override fun getAnnotationArgumentValue(trace: BindingTrace, valueParameter: ValueParameterDescriptor, resolvedArgument: ResolvedValueArgument): ConstantValue<*>? {
     println("MetaAnnotationResolver.getAnnotationArgumentValue $resolvedArgument")
     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.

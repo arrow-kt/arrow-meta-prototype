@@ -1,4 +1,4 @@
-package arrow.meta.utils
+package arrow.meta.debug.resolution.singleton
 
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.SimpleFunctionDescriptor
@@ -8,9 +8,10 @@ import org.jetbrains.kotlin.name.FqName
 /***
  * @throws InvalidCardinalityException If not added correctly - the compiler requires a Singleton
  **/
-class MetaPlatformDependentDeclarationFilter : PlatformDependentDeclarationFilter {
+class MetaPlatformDependentDeclarationFilter(val delegate: PlatformDependentDeclarationFilter) : PlatformDependentDeclarationFilter {
   override fun isFunctionAvailable(classDescriptor: ClassDescriptor, functionDescriptor: SimpleFunctionDescriptor): Boolean {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    println("MetaPlatformDependentDeclarationFilter.isFunctionAvailable: $classDescriptor, $functionDescriptor")
+    return delegate.isFunctionAvailable(classDescriptor, functionDescriptor)
   }
 }
 

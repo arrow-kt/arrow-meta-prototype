@@ -1,4 +1,4 @@
-package arrow.meta.utils
+package arrow.meta.debug.resolution.singleton
 
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
@@ -17,35 +17,35 @@ import org.jetbrains.kotlin.types.KotlinType
  * Hence, we need to intercept the Singleton [DataFlowValueFactoryImpl] from the container with JavaReflection
  * Delegate the functions we want to keep and pass the one we want to modify to the container as a new Singleton
  **/
-class MetaDataFlowValueFactory : DataFlowValueFactory {
+class MetaDataFlowValueFactory(val delegate: DataFlowValueFactory) : DataFlowValueFactory by delegate{
   override fun createDataFlowValue(expression: KtExpression, type: KotlinType, bindingContext: BindingContext, containingDeclarationOrModule: DeclarationDescriptor): DataFlowValue {
-    println("MetaDataFlowValueFactory.createDataFlowValue: $containingDeclarationOrModule")
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    println("MetaDataFlowValueFactory.createDataFlowValue: $expression, $type, $bindingContext, $containingDeclarationOrModule")
+    return delegate.createDataFlowValue(expression, type, bindingContext, containingDeclarationOrModule)
   }
 
   override fun createDataFlowValue(expression: KtExpression, type: KotlinType, resolutionContext: ResolutionContext<*>): DataFlowValue {
-    println("MetaDataFlowValueFactory.createDataFlowValue: $expression $resolutionContext")
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    println("MetaDataFlowValueFactory.createDataFlowValue: $expression, $type, $resolutionContext")
+    return delegate.createDataFlowValue(expression, type, resolutionContext)
   }
 
   override fun createDataFlowValue(receiverValue: ReceiverValue, bindingContext: BindingContext, containingDeclarationOrModule: DeclarationDescriptor): DataFlowValue {
-    println("MetaDataFlowValueFactory.createDataFlowValue: $receiverValue")
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    println("MetaDataFlowValueFactory.createDataFlowValue: $receiverValue, $bindingContext, $containingDeclarationOrModule")
+    return delegate.createDataFlowValue(receiverValue, bindingContext, containingDeclarationOrModule)
   }
 
   override fun createDataFlowValue(receiverValue: ReceiverValue, resolutionContext: ResolutionContext<*>): DataFlowValue {
-    println("MetaDataFlowValueFactory.createDataFlowValue: $resolutionContext")
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    println("MetaDataFlowValueFactory.createDataFlowValue: $receiverValue, $resolutionContext")
+    return delegate.createDataFlowValue(receiverValue, resolutionContext)
   }
 
   override fun createDataFlowValueForProperty(property: KtProperty, variableDescriptor: VariableDescriptor, bindingContext: BindingContext, usageContainingModule: ModuleDescriptor?): DataFlowValue {
-    println("MetaDataFlowValueFactory.createDataFlowValueForProperty: $property")
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    println("MetaDataFlowValueFactory.createDataFlowValueForProperty: $property, $variableDescriptor, $bindingContext, $usageContainingModule")
+    return delegate.createDataFlowValueForProperty(property, variableDescriptor, bindingContext, usageContainingModule)
   }
 
   override fun createDataFlowValueForStableReceiver(receiver: ReceiverValue): DataFlowValue {
     println("MetaDataFlowValueFactory.createDataFlowValueForStableReceiver: $receiver")
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    return delegate.createDataFlowValueForStableReceiver(receiver)
   }
 
 }

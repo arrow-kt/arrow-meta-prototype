@@ -1,8 +1,6 @@
 package arrow.meta.utils
 
-// TODO: still WIP
-import arrow.meta.higherkind.MetaKotlinCodeAnalyzer
-import org.jetbrains.kotlin.config.LanguageVersionSettings
+/*import org.jetbrains.kotlin.config.LanguageVersionSettings
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassifierDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
@@ -31,65 +29,73 @@ import org.jetbrains.kotlin.resolve.lazy.declarations.DeclarationProviderFactory
 import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyPackageDescriptor
 import org.jetbrains.kotlin.storage.StorageManager
 import org.jetbrains.kotlin.types.WrappedTypeFactory
-/*
 
-class MetaResolveSession : KotlinCodeAnalyzer, LazyClassContext { // current;y has a Platform declaration Clash ..
-  override val declarationScopeProvider: DeclarationScopeProvider
-    get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
-
-  override fun getDeclarationScopeProvider(): DeclarationScopeProvider {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
-  override fun getModuleDescriptor(): ModuleDescriptor {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-  }
-
+class MetaResolveSession : KotlinCodeAnalyzer, LazyClassContext {
   override fun resolveToDescriptor(p0: KtDeclaration): DeclarationDescriptor {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    println("resolveToDescriptor: ")
+    TODO("not implemented")
   }
 
   override fun assertValid() {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    println("assertValid: ")
+    TODO("not implemented")
   }
 
   override fun getTopLevelClassifierDescriptors(fqName: FqName, location: LookupLocation): Collection<ClassifierDescriptor> {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    println("getTopLevelClassifierDescriptors: ")
+    TODO("not implemented")
   }
 
   override fun getClassDescriptor(p0: KtClassOrObject, p1: LookupLocation): ClassDescriptor {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    println("getClassDescriptor: ")
+    TODO("not implemented")
   }
 
   override fun forceResolveAll() {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    println("forceResolveAll: ")
+    TODO("not implemented")
   }
 
   override fun getPackageFragment(fqName: FqName): LazyPackageDescriptor? {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    println("getPackageFragment: ")
+    TODO("not implemented")
   }
 
+  override fun getDeclarationScopeProvider(): DeclarationScopeProvider {
+    println("getDeclarationScopeProvider: ")
+    TODO("not implemented")
+  }
 
   override fun getPackageFragmentProvider(): PackageFragmentProvider {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    println("getPackageFragmentProvider: ")
+    TODO("not implemented")
   }
 
   override fun getPackageFragmentOrDiagnoseFailure(fqName: FqName, from: KtFile?): LazyPackageDescriptor {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    println("getPackageFragmentOrDiagnoseFailure: ")
+    TODO("not implemented")
   }
 
   override fun getBindingContext(): BindingContext {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    println("getBindingContext: ")
+    TODO("not implemented")
   }
 
+  override fun getModuleDescriptor(): ModuleDescriptor {
+    println("getModuleDescriptor: ")
+    return moduleDescriptor
+  }
 
   override fun getFileScopeProvider(): FileScopeProvider {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    println("getFileScopeProvider: ")
+    TODO("not implemented")
   }
 
   override val annotationResolver: AnnotationResolver
     get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
   override val declarationProviderFactory: DeclarationProviderFactory
+    get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+  override val declarationScopeProvider: DeclarationScopeProvider
     get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
   override val delegationFilter: DelegationFilter
     get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
@@ -100,6 +106,8 @@ class MetaResolveSession : KotlinCodeAnalyzer, LazyClassContext { // current;y h
   override val languageVersionSettings: LanguageVersionSettings
     get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
   override val lookupTracker: LookupTracker
+    get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+  override val moduleDescriptor: ModuleDescriptor
     get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
   override val storageManager: StorageManager
     get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.

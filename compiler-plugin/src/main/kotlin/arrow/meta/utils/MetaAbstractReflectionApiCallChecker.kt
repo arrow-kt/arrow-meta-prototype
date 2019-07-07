@@ -8,10 +8,10 @@ import org.jetbrains.kotlin.resolve.calls.checkers.CallCheckerContext
 import org.jetbrains.kotlin.storage.StorageManager
 
 class MetaAbstractReflectionApiCallChecker(
-  private val module: ModuleDescriptor,
+  module: ModuleDescriptor,
   notFoundClasses: NotFoundClasses,
   storageManager: StorageManager
-) : AbstractReflectionApiCallChecker(module, notFoundClasses, storageManager) {
+) : AbstractReflectionApiCallChecker(module, notFoundClasses, storageManager){
   override val isWholeReflectionApiAvailable: Boolean
     get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
 

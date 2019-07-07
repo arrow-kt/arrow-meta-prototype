@@ -1,13 +1,12 @@
 package arrow.meta.typeclasses
 
+import arrow.meta.debug.resolution.MetaBodyResolver
+import arrow.meta.debug.resolution.MetaCallResolver
+import arrow.meta.debug.resolution.singleton.MetaTypeSystemInferenceExtensionContextDelegate
 import arrow.meta.extensions.CompilerContext
 import arrow.meta.extensions.ExtensionPhase
 import arrow.meta.extensions.MetaComponentRegistrar
-import arrow.meta.higherkind.buildIrValueParameter
-import arrow.meta.utils.MetaBodyResolver
-import arrow.meta.utils.MetaCallResolver
-import arrow.meta.utils.MetaExpectActualTracker
-import arrow.meta.utils.MetaLazyClassContext
+import arrow.meta.utils.buildIrValueParameter
 import org.jetbrains.kotlin.backend.common.BackendContext
 import org.jetbrains.kotlin.backend.common.serialization.irrelevantOrigin
 import org.jetbrains.kotlin.container.StorageComponentContainer
@@ -48,10 +47,10 @@ class TypeClassesComponentRegistrar : MetaComponentRegistrar {
           container.useImpl<TypeClassPlatformDiagnosticSuppressor>()
           container.useImpl<MetaCallResolver>()
           container.useImpl<MetaBodyResolver>()
-          container.useImpl<MetaLazyClassContext>()
-
+          // container.useImpl<MetaClassDataFinder>() <- Unknown
+          // container.useImpl<MetaDiagnosticSink>() <- @UnknownPhase
           // container.useImpl<MetaPackageFragmentProvider>() <- @UnknownPhase
-          // container.useImpl<MetaConstraintSystemBuilder>() <- @UnknownPhase
+          // container.useImpl<MetaConstraintSystemBuilder>() //<- @UnknownPhase @throws ContainerConsistencyException
           // container.useImpl<MetaPlatformDependentAnalyzerServices>() <- not sure if that works,
           // because it is usually called with container.configureModule
           // only for my debugging

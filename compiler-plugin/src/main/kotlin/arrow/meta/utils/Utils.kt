@@ -1,4 +1,4 @@
-package arrow.meta.higherkind
+package arrow.meta.utils
 
 import arrow.meta.extensions.CompilerContext
 import org.jetbrains.kotlin.backend.common.BackendContext

@@ -2,6 +2,13 @@ package arrow.meta.higherkind
 
 import arrow.meta.extensions.ExtensionPhase
 import arrow.meta.extensions.MetaComponentRegistrar
+import arrow.meta.utils.AddSupertypesPackageFragmentProvider
+import arrow.meta.utils.higherKind
+import arrow.meta.utils.irHigherKind
+import arrow.meta.utils.kindMarker
+import arrow.meta.utils.setFinalStatic
+import arrow.meta.utils.shouldApplyKind
+import arrow.meta.utils.shouldGenerateKindMarker
 import com.google.auto.service.AutoService
 import org.jetbrains.kotlin.analyzer.ModuleInfo
 import org.jetbrains.kotlin.com.intellij.openapi.project.Project

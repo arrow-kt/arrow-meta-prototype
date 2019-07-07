@@ -1,4 +1,4 @@
-package arrow.meta.services
+package arrow.meta.debug.unusedServices
 
 import org.jetbrains.kotlin.analyzer.ModuleInfo
 import org.jetbrains.kotlin.config.LanguageFeature

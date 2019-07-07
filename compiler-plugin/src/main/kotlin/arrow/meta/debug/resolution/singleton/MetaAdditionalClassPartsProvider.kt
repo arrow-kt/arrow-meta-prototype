@@ -1,4 +1,4 @@
-package arrow.meta.utils
+package arrow.meta.debug.resolution.singleton
 
 import org.jetbrains.kotlin.descriptors.ClassConstructorDescriptor
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
@@ -10,24 +10,24 @@ import org.jetbrains.kotlin.types.KotlinType
 /***
  * @throws InvalidCardinalityException If not added correctly - the compiler requires a Singleton
  **/
-class MetaAdditionalClassPartsProvider : AdditionalClassPartsProvider {
+class MetaAdditionalClassPartsProvider(val delegate: AdditionalClassPartsProvider) : AdditionalClassPartsProvider by delegate {
   override fun getConstructors(classDescriptor: ClassDescriptor): Collection<ClassConstructorDescriptor> {
     println("MetaAdditionalClassPartsProvider.getConstructors: $classDescriptor")
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    return delegate.getConstructors(classDescriptor)
   }
 
   override fun getFunctions(name: Name, classDescriptor: ClassDescriptor): Collection<SimpleFunctionDescriptor> {
-    println("MetaAdditionalClassPartsProvider.getFunctions: $name")
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    println("MetaAdditionalClassPartsProvider.getFunctions: $name, $classDescriptor")
+    return delegate.getFunctions(name, classDescriptor)
   }
 
   override fun getFunctionsNames(classDescriptor: ClassDescriptor): Collection<Name> {
     println("MetaAdditionalClassPartsProvider.getFunctionsNames: $classDescriptor")
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    return delegate.getFunctionsNames(classDescriptor)
   }
 
   override fun getSupertypes(classDescriptor: ClassDescriptor): Collection<KotlinType> {
     println("MetaAdditionalClassPartsProvider.getSupertypes: $classDescriptor")
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    return delegate.getSupertypes(classDescriptor)
   }
 }

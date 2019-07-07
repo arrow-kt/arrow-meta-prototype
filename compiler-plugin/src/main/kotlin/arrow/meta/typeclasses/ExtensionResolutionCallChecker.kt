@@ -1,6 +1,6 @@
 package arrow.meta.typeclasses
 
-import arrow.meta.higherkind.suppressDiagnostic
+import arrow.meta.utils.suppressDiagnostic
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.descriptors.CallableDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor

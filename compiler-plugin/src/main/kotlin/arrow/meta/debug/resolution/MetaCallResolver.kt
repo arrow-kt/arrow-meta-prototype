@@ -1,4 +1,4 @@
-package arrow.meta.utils
+package arrow.meta.debug.resolution
 
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.config.LanguageVersionSettings
@@ -36,52 +36,52 @@ class MetaCallResolver(
 ) : CallResolver(builtIns, languageVersionSettings, dataFlowValueFactory) {
 
   override fun resolveCallForMember(nameExpression: KtSimpleNameExpression, context: BasicCallResolutionContext): OverloadResolutionResults<CallableDescriptor> {
-    println("MetaCallResolver.resolveCallForMember: $nameExpression")
+    println("MetaCallResolver.resolveCallForMember: $nameExpression, $context")
     return super.resolveCallForMember(nameExpression, context)
   }
 
   override fun resolveFunctionCall(trace: BindingTrace, scope: LexicalScope, call: Call, expectedType: KotlinType, dataFlowInfo: DataFlowInfo, isAnnotationContext: Boolean): OverloadResolutionResults<FunctionDescriptor> {
-    println("MetaCallResolver.resolveFunctionCall(X): ${call.calleeExpression?.text}")
+    println("MetaCallResolver.resolveFunctionCall: $trace, $scope, $call, $expectedType, $dataFlowInfo, $isAnnotationContext ${call.calleeExpression?.text}")
     return super.resolveFunctionCall(trace, scope, call, expectedType, dataFlowInfo, isAnnotationContext)
   }
 
   override fun resolveFunctionCall(context: BasicCallResolutionContext): OverloadResolutionResults<FunctionDescriptor> {
-    println("MetaCallResolver.resolveFunctionCall: ${context.call}")
+    println("MetaCallResolver.resolveFunctionCall: $context ${context.call}")
     return super.resolveFunctionCall(context)
   }
 
   override fun resolveBinaryCall(context: ExpressionTypingContext?, receiver: ExpressionReceiver?, binaryExpression: KtBinaryExpression?, name: Name?): OverloadResolutionResults<FunctionDescriptor> {
-    println("MetaCallResolver.resolveBinaryCall: $binaryExpression")
+    println("MetaCallResolver.resolveBinaryCall: $context, $receiver, $binaryExpression, $name")
     return super.resolveBinaryCall(context, receiver, binaryExpression, name)
   }
 
   override fun resolveEqualsCallWithGivenDescriptors(context: ExpressionTypingContext, expression: KtReferenceExpression, receiver: ExpressionReceiver, call: Call, functionDescriptors: MutableCollection<FunctionDescriptor>): OverloadResolutionResults<FunctionDescriptor> {
-    println("MetaCallResolver.resolveEqualsCallWithGivenDescriptors: $expression, functionDescriptors: $functionDescriptors")
+    println("MetaCallResolver.resolveEqualsCallWithGivenDescriptors: $context, $expression, $receiver, $call, $functionDescriptors")
     return super.resolveEqualsCallWithGivenDescriptors(context, expression, receiver, call, functionDescriptors)
   }
 
   override fun resolveCallWithGivenName(context: ResolutionContext<*>, call: Call, functionReference: KtReferenceExpression, name: Name): OverloadResolutionResults<FunctionDescriptor> {
-    println("MetaCallResolver.resolveCallWithGivenName: $name, functionReference: $functionReference")
+    println("MetaCallResolver.resolveCallWithGivenName: $context, $call, $functionReference, $name")
     return super.resolveCallWithGivenName(context, call, functionReference, name)
   }
 
   override fun resolveCallWithGivenName(context: ResolutionContext<*>, call: Call, name: Name, tracing: TracingStrategy): OverloadResolutionResults<FunctionDescriptor> {
-    println("MetaCallResolver.resolveCallWithGivenName: $name")
+    println("MetaCallResolver.resolveCallWithGivenName: $context, $call, $name, $tracing")
     return super.resolveCallWithGivenName(context, call, name, tracing)
   }
 
   override fun resolveConstructorCall(context: BasicCallResolutionContext, functionReference: KtReferenceExpression, constructedType: KotlinType): OverloadResolutionResults<ConstructorDescriptor> {
-    println("MetaCallResolver.resolveConstructorCall: $functionReference")
+    println("MetaCallResolver.resolveConstructorCall: $context, $functionReference, $constructedType")
     return super.resolveConstructorCall(context, functionReference, constructedType)
   }
 
   override fun resolveConstructorDelegationCall(trace: BindingTrace, scope: LexicalScope, dataFlowInfo: DataFlowInfo, constructorDescriptor: ClassConstructorDescriptor, call: KtConstructorDelegationCall): OverloadResolutionResults<ConstructorDescriptor>? {
-    println("MetaCallResolver.resolveConstructorDelegationCall: $call")
+    println("MetaCallResolver.resolveConstructorDelegationCall: $trace, $scope, $dataFlowInfo, $constructorDescriptor, $call")
     return super.resolveConstructorDelegationCall(trace, scope, dataFlowInfo, constructorDescriptor, call)
   }
 
   override fun resolveCollectionLiteralCallWithGivenDescriptor(context: ExpressionTypingContext, expression: KtCollectionLiteralExpression, call: Call, functionDescriptors: MutableCollection<FunctionDescriptor>): OverloadResolutionResults<FunctionDescriptor> {
-    println("MetaCallResolver.resolveCollectionLiteralCallWithGivenDescriptor: $expression")
+    println("MetaCallResolver.resolveCollectionLiteralCallWithGivenDescriptor: $context, $expression, $call, $functionDescriptors")
     return super.resolveCollectionLiteralCallWithGivenDescriptor(context, expression, call, functionDescriptors)
   }
 
@@ -97,7 +97,7 @@ class MetaCallResolver(
     candidate: ResolutionCandidate<FunctionDescriptor>,
     dataFlowInfoForArguments: MutableDataFlowInfoForArguments?
   ): OverloadResolutionResults<FunctionDescriptor> {
-    println("MetaCallResolver.resolveCallWithKnownCandidate: $call")
+    println("MetaCallResolver.resolveCallWithKnownCandidate: $call, $tracing, $context, $candidate, $dataFlowInfoForArguments")
     return super.resolveCallWithKnownCandidate(call, tracing, context, candidate, dataFlowInfoForArguments)
   }
 }

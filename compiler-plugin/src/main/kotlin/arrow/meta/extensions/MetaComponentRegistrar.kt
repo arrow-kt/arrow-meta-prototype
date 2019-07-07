@@ -1,9 +1,6 @@
 package arrow.meta.extensions
 
-import arrow.meta.higherkind.MetaCodeAnalyzerInitializer
-import arrow.meta.higherkind.MetaKotlinCodeAnalyzer
-import arrow.meta.higherkind.MetaPsiFacade
-import arrow.meta.utils.NoOp2
+import arrow.meta.debug.resolution.singleton.MetaCodeAnalyzerInitializer
 import arrow.meta.utils.NoOp3
 import arrow.meta.utils.NoOp6
 import arrow.meta.utils.NullableOp1
@@ -24,9 +21,7 @@ import org.jetbrains.kotlin.com.intellij.mock.MockProject
 import org.jetbrains.kotlin.com.intellij.openapi.extensions.Extensions
 import org.jetbrains.kotlin.com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.kotlin.com.intellij.psi.JavaPsiFacade
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
-import org.jetbrains.kotlin.com.intellij.psi.PsiElementFactory
 import org.jetbrains.kotlin.com.intellij.testFramework.LightVirtualFile
 import org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar
 import org.jetbrains.kotlin.config.CompilerConfiguration

@@ -1,4 +1,4 @@
-package arrow.meta.utils
+package arrow.meta.debug.resolution
 
 import arrow.meta.typeclasses.isWithAnnotated
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
@@ -92,32 +92,32 @@ class MetaBodyResolver(
 ) {
 
   override fun resolveAnonymousInitializer(outerDataFlowInfo: DataFlowInfo, anonymousInitializer: KtAnonymousInitializer, classDescriptor: ClassDescriptorWithResolutionScopes) {
-    println("MetaBodyResolver.resolveAnonymousInitializer")
+    println("MetaBodyResolver.resolveAnonymousInitializer: $outerDataFlowInfo, $anonymousInitializer, $classDescriptor")
     super.resolveAnonymousInitializer(outerDataFlowInfo, anonymousInitializer, classDescriptor)
   }
 
   override fun resolveConstructorParameterDefaultValues(outerDataFlowInfo: DataFlowInfo, trace: BindingTrace, constructor: KtPrimaryConstructor, constructorDescriptor: ConstructorDescriptor, declaringScope: LexicalScope) {
-    println("MetaBodyResolver.resolveConstructorParameterDefaultValues")
+    println("MetaBodyResolver.resolveConstructorParameterDefaultValues: $outerDataFlowInfo, $trace, $constructor, $constructorDescriptor, $declaringScope")
     super.resolveConstructorParameterDefaultValues(outerDataFlowInfo, trace, constructor, constructorDescriptor, declaringScope)
   }
 
   override fun resolveProperty(c: BodiesResolveContext, property: KtProperty, propertyDescriptor: PropertyDescriptor) {
-    println("MetaBodyResolver.resolveProperty")
+    println("MetaBodyResolver.resolveProperty: $c, $property, $propertyDescriptor")
     super.resolveProperty(c, property, propertyDescriptor)
   }
 
   override fun resolveSecondaryConstructorBody(outerDataFlowInfo: DataFlowInfo, trace: BindingTrace, constructor: KtSecondaryConstructor, descriptor: ClassConstructorDescriptor, declaringScope: LexicalScope) {
-    println("MetaBodyResolver.resolveSecondaryConstructorBody")
+    println("MetaBodyResolver.resolveSecondaryConstructorBody: $outerDataFlowInfo, $trace, $constructor, $descriptor, $declaringScope")
     super.resolveSecondaryConstructorBody(outerDataFlowInfo, trace, constructor, descriptor, declaringScope)
   }
 
   override fun resolveSuperTypeEntryList(outerDataFlowInfo: DataFlowInfo, ktClass: KtClassOrObject, descriptor: ClassDescriptor, primaryConstructor: ConstructorDescriptor?, scopeForConstructorResolution: LexicalScope, scopeForMemberResolution: LexicalScope) {
-    println("MetaBodyResolver.resolveSuperTypeEntryList")
+    println("MetaBodyResolver.resolveSuperTypeEntryList: $outerDataFlowInfo, $ktClass, $descriptor, $primaryConstructor, $scopeForConstructorResolution, $scopeForMemberResolution")
     super.resolveSuperTypeEntryList(outerDataFlowInfo, ktClass, descriptor, primaryConstructor, scopeForConstructorResolution, scopeForMemberResolution)
   }
 
   override fun resolveBodies(c: BodiesResolveContext) {
-    println("MetaBodyResolver.resolveBodies")
+    println("MetaBodyResolver.resolveBodies: $c")
     super.resolveBodies(c)
   }
 
@@ -135,7 +135,7 @@ class MetaBodyResolver(
   }
 
   override fun resolveFunctionBody(outerDataFlowInfo: DataFlowInfo, trace: BindingTrace, function: KtDeclarationWithBody, functionDescriptor: FunctionDescriptor, declaringScope: LexicalScope) {
-    println("MetaBodyResolver.resolveFunctionBody: $functionDescriptor")
+    println("MetaBodyResolver.resolveFunctionBody: $outerDataFlowInfo, $trace, $function, $functionDescriptor, $declaringScope")
     //super.resolveFunctionBody(outerDataFlowInfo, trace, function, functionDescriptor, declaringScope)
     computeDeferredType(functionDescriptor.returnType)
     resolveFunctionBody(outerDataFlowInfo, trace, function, functionDescriptor, declaringScope, null, null)
