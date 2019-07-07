@@ -2,7 +2,8 @@ package arrow.meta.typeclasses
 
 import arrow.meta.debug.resolution.MetaBodyResolver
 import arrow.meta.debug.resolution.MetaCallResolver
-import arrow.meta.debug.resolution.singleton.MetaTypeSystemInferenceExtensionContextDelegate
+import arrow.meta.debug.resolution.singleton.MetaExpressionTypingFacade
+import arrow.meta.debug.resolution.singleton.MetaExpressionTypingInternals
 import arrow.meta.extensions.CompilerContext
 import arrow.meta.extensions.ExtensionPhase
 import arrow.meta.extensions.MetaComponentRegistrar

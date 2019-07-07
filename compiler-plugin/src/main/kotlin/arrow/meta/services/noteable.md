@@ -38,7 +38,7 @@ the subsequent phases and get something like an DI
 ### CallCheckers
 - LambdaWithSuspendModifierCallChecker is within the DEFAULT_CALL_CHECKERS List in TargetPlatform
 
-# Other exposed compiler artifacts
+# Other exposed compiler artifacts // [all exposed artifacts](https://dl.bintray.com/kotlin/kotlin-eap/org/jetbrains/kotlin/)
 - [Kotlin Compiler Client Embeddable](https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-compiler-client-embeddable)
 - [Kotlin Compiler Runner](https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-compiler-runner)
 - [Kotlin Compiler Nostrip](https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-compiler-nostrip)

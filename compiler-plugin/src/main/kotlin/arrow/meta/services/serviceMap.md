@@ -96,37 +96,37 @@
 @typeName: org.jetbrains.kotlin.resolve.jvm.checkers.JavaClassOnCompanionChecker
 - [X] 	@instanceValueInstance: JavaClassOnCompanionChecker
 @typeName: org.jetbrains.kotlin.serialization.deserialization.ClassDataFinder
-- [ ] 	@instanceValueImplicit: JavaClassDataFinder
+- [X] 	@instanceValueImplicit: JavaClassDataFinder
 ## Stop1
 
 @typeName: org.jetbrains.kotlin.resolve.checkers.BigFunctionTypeAvailabilityChecker
-- [ ] 	@instanceValueInstance: BigFunctionTypeAvailabilityChecker
+- [X] 	@instanceValueInstance: BigFunctionTypeAvailabilityChecker
 @typeName: org.jetbrains.kotlin.incremental.components.LookupTracker$DO_NOTHING
-- [ ] 	@instanceValueInstance: DO_NOTHING
+- [X] 	@instanceValueInstance: DO_NOTHING
 @typeName: org.jetbrains.kotlin.synthetic.JavaSyntheticScopes
-- [ ] 	@instanceValueSingleton: JavaSyntheticScopes
+- [X] 	@instanceValueSingleton: JavaSyntheticScopes
 @typeName: org.jetbrains.kotlin.context.MutableModuleContextImpl
-- [ ] 	@instanceValueInstance: MutableModuleContextImpl
+- [X] 	@instanceValueInstance: MutableModuleContextImpl
 @typeName: org.jetbrains.kotlin.resolve.calls.checkers.OperatorCallChecker
-- [ ] 	@instanceValueInstance: OperatorCallChecker
+- [C] 	@instanceValueInstance: OperatorCallChecker
 @typeName: org.jetbrains.kotlin.resolve.lazy.declarations.AbstractDeclarationProviderFactory
-- [ ] 	@instanceValueInstance: FileBasedDeclarationProviderFactory
+- [X] 	@instanceValueInstance: FileBasedDeclarationProviderFactory
 @typeName: org.jetbrains.kotlin.load.java.components.JavaSourceElementFactoryImpl
-- [ ] 	@instanceValueSingleton: JavaSourceElementFactoryImpl
+- [X] 	@instanceValueSingleton: JavaSourceElementFactoryImpl
 @typeName: org.jetbrains.kotlin.resolve.calls.tasks.DynamicCallableDescriptors
-- [ ] 	@instanceValueImplicit: DynamicCallableDescriptors
+- [X] 	@instanceValueImplicit: DynamicCallableDescriptors
 @typeName: org.jetbrains.kotlin.load.java.components.JavaPropertyInitializerEvaluator
-- [ ] 	@instanceValueInstance: JavaPropertyInitializerEvaluatorImpl
+- [X] 	@instanceValueInstance: JavaPropertyInitializerEvaluatorImpl
 @typeName: org.jetbrains.kotlin.resolve.calls.checkers.CoroutineSuspendCallChecker
-- [ ] 	@instanceValueInstance: CoroutineSuspendCallChecker
+- [X] 	@instanceValueInstance: CoroutineSuspendCallChecker
 @typeName: org.jetbrains.kotlin.resolve.jvm.checkers.ProtectedInSuperClassCompanionCallChecker
-- [ ] 	@instanceValueInstance: ProtectedInSuperClassCompanionCallChecker
+- [X] 	@instanceValueInstance: ProtectedInSuperClassCompanionCallChecker
 @typeName: org.jetbrains.kotlin.com.intellij.openapi.components.ComponentManager
-- [ ] 	@instanceValueInstance: MockProject
+- [X] 	@instanceValueInstance: MockProject
 @typeName: org.jetbrains.kotlin.resolve.calls.checkers.LateinitIntrinsicApplicabilityChecker
-- [ ] 	@instanceValueInstance: LateinitIntrinsicApplicabilityChecker
+- [X] 	@instanceValueInstance: LateinitIntrinsicApplicabilityChecker
 @typeName: org.jetbrains.kotlin.load.java.typeEnhancement.SignatureEnhancement
-- [ ] 	@instanceValueImplicit: SignatureEnhancement
+- [X] 	@instanceValueImplicit: SignatureEnhancement
 @typeName: org.jetbrains.kotlin.types.expressions.ExpressionTypingFacade
 - [ ] 	@instanceValueImplicit: ForDeclarations
 @typeName: org.jetbrains.kotlin.resolve.calls.ArgumentTypeResolver
