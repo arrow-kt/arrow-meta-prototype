@@ -17,6 +17,7 @@ import org.jetbrains.kotlin.types.model.TypeVariance
 /**
  * @UnusedService Currently we need to investigate how our costume functions can be executed.
  * Meaning we need to hook into the compiler earlier than Analysis. Either with Reflection or else
+ * @follow [AbstractTypeApproximator] for more intel on hijacking
  */
 class MetaTypeSystemInferenceExtensionContext(val delegate: TypeSystemInferenceExtensionContext) : TypeSystemInferenceExtensionContext by delegate {
   override fun anyType(): SimpleTypeMarker {

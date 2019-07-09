@@ -32,7 +32,7 @@ override fun intercept(): List<ExtensionPhase> =
 
 Well, some would say, why is it important to register your service at such an early stage.
 Simply put, if the compiler is aware about our modified service in an earlier stage we get more help throughout 
-the subsequent phases and get something like an DI 
+the subsequent phases
 - Nice overview how to register basic services in kotlin: kotlin/compiler/frontend/src/org/jetbrains/kotlin/frontend/di/injection.kt
 
 ### CallCheckers
@@ -44,7 +44,7 @@ the subsequent phases and get something like an DI
 - [Kotlin Compiler Nostrip](https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-compiler-nostrip)
 - [Kotlin Frontend Plugin](https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-frontend-plugin)
 
-
+- Everything on the TypeSystem org/jetbrains/kotlin/types/model/TypeSystemContext.kt
 
 
 

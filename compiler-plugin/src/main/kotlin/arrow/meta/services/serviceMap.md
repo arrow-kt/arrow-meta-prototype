@@ -128,11 +128,11 @@
 @typeName: org.jetbrains.kotlin.load.java.typeEnhancement.SignatureEnhancement
 - [X] 	@instanceValueImplicit: SignatureEnhancement
 @typeName: org.jetbrains.kotlin.types.expressions.ExpressionTypingFacade
-- [ ] 	@instanceValueImplicit: ForDeclarations
+- [X] 	@instanceValueImplicit: ForDeclarations
 @typeName: org.jetbrains.kotlin.resolve.calls.ArgumentTypeResolver
-- [ ] 	@instanceValueImplicit: ArgumentTypeResolver
+- [X] 	@instanceValueImplicit: ArgumentTypeResolver
 @typeName: org.jetbrains.kotlin.resolve.DeclarationsCheckerBuilder
-- [ ] 	@instanceValueImplicit: DeclarationsCheckerBuilder
+- [X] 	@instanceValueImplicit: DeclarationsCheckerBuilder
 @typeName: org.jetbrains.kotlin.resolve.calls.inference.components.ConstraintInjector
 - [X] 	@instanceValueImplicit: ConstraintInjector
 @typeName: org.jetbrains.kotlin.resolve.DelegatedPropertyResolver
@@ -140,71 +140,71 @@
 @typeName: org.jetbrains.kotlin.resolve.VarianceChecker
 - [X] 	@instanceValueImplicit: VarianceChecker
 @typeName: org.jetbrains.kotlin.resolve.checkers.SinceKotlinAnnotationValueChecker
-- [ ] 	@instanceValueInstance: SinceKotlinAnnotationValueChecker
+- [X] 	@instanceValueInstance: SinceKotlinAnnotationValueChecker
 @typeName: org.jetbrains.kotlin.com.intellij.openapi.project.Project
-- [ ] 	@instanceValueInstance: MockProject
+- [X] 	@instanceValueInstance: MockProject
 @typeName: org.jetbrains.kotlin.types.expressions.FakeCallResolver
-- [ ] 	@instanceValueImplicit: FakeCallResolver
+- [C] 	@instanceValueImplicit: FakeCallResolver
 @typeName: org.jetbrains.kotlin.resolve.calls.GenericCandidateResolver
-- [ ] 	@instanceValueImplicit: GenericCandidateResolver
+- [C] 	@instanceValueImplicit: GenericCandidateResolver
 @typeName: org.jetbrains.kotlin.resolve.lazy.LazyClassContext
-- [ ] 	@instanceValueSingleton: ResolveSession
+- [C] 	@instanceValueSingleton: ResolveSession
 @typeName: org.jetbrains.kotlin.resolve.calls.KotlinCallResolver
-- [ ] 	@instanceValueImplicit: KotlinCallResolver
+- [C] 	@instanceValueImplicit: KotlinCallResolver
 @typeName: org.jetbrains.kotlin.resolve.calls.CandidateResolver
-- [ ] 	@instanceValueImplicit: CandidateResolver
+- [X] 	@instanceValueImplicit: CandidateResolver
 @typeName: org.jetbrains.kotlin.resolve.jvm.checkers.MissingBuiltInDeclarationChecker$ClassifierUsage
-- [ ] 	@instanceValueInstance: ClassifierUsage
+- [X] 	@instanceValueInstance: ClassifierUsage
 @typeName: org.jetbrains.kotlin.types.expressions.DestructuringDeclarationResolver
-- [ ] 	@instanceValueImplicit: DestructuringDeclarationResolver
+- [X] 	@instanceValueImplicit: DestructuringDeclarationResolver
 @typeName: org.jetbrains.kotlin.resolve.DeclarationReturnTypeSanitizer
-- [ ] 	@instanceValueInstance: JvmDeclarationReturnTypeSanitizer
+- [X] 	@instanceValueInstance: JvmDeclarationReturnTypeSanitizer
 @typeName: org.jetbrains.kotlin.resolve.calls.components.SamConversionTransformer
-- [ ] 	@instanceValueSingleton: JvmSamConversionTransformer
+- [X] 	@instanceValueSingleton: JvmSamConversionTransformer
 @typeName: org.jetbrains.kotlin.storage.LockBasedStorageManager
-- [ ] 	@instanceValueInstance: LockBasedStorageManager
+- [X] 	@instanceValueInstance: LockBasedStorageManager
 @typeName: org.jetbrains.kotlin.resolve.BodyResolveCache
-- [ ] 	@instanceValueInstance: ThrowException
+- [X] 	@instanceValueInstance: ThrowException
 @typeName: org.jetbrains.kotlin.resolve.lazy.LocalDescriptorResolver
-- [ ] 	@instanceValueSingleton: CompilerLocalDescriptorResolver
+- [X] 	@instanceValueSingleton: CompilerLocalDescriptorResolver
 @typeName: org.jetbrains.kotlin.resolve.calls.inference.CoroutineInferenceSupport
-- [ ] 	@instanceValueImplicit: CoroutineInferenceSupport
+- [X] 	@instanceValueImplicit: CoroutineInferenceSupport
 @typeName: org.jetbrains.kotlin.load.java.lazy.JavaResolverComponents
-- [ ] 	@instanceValueImplicit: JavaResolverComponents
+- [C] 	@instanceValueImplicit: JavaResolverComponents
 @typeName: org.jetbrains.kotlin.resolve.checkers.ApiVersionClassifierUsageChecker
-- [ ] 	@instanceValueInstance: ApiVersionClassifierUsageChecker
+- [X] 	@instanceValueInstance: ApiVersionClassifierUsageChecker
 @typeName: org.jetbrains.kotlin.load.java.components.JavaDeprecationSettings
-- [ ] 	@instanceValueInstance: JavaDeprecationSettings
+- [X] 	@instanceValueInstance: JavaDeprecationSettings
 @typeName: org.jetbrains.kotlin.resolve.calls.checkers.ImplicitNothingAsTypeParameterCallChecker
-- [ ] 	@instanceValueInstance: ImplicitNothingAsTypeParameterCallChecker
+- [C] 	@instanceValueInstance: ImplicitNothingAsTypeParameterCallChecker
 @typeName: org.jetbrains.kotlin.resolve.lazy.DeclarationScopeProvider
-- [ ] 	@instanceValueImplicit: DeclarationScopeProviderImpl
+- [X] 	@instanceValueImplicit: DeclarationScopeProviderImpl
 @typeName: org.jetbrains.kotlin.types.TypeApproximator
-- [ ] 	@instanceValueImplicit: TypeApproximator
+- [C] 	@instanceValueImplicit: TypeApproximator
 @typeName: org.jetbrains.kotlin.resolve.jvm.checkers.OverloadsAnnotationChecker
-- [ ] 	@instanceValueInstance: OverloadsAnnotationChecker
+- [X] 	@instanceValueInstance: OverloadsAnnotationChecker
 @typeName: org.jetbrains.kotlin.resolve.jvm.checkers.SynchronizedAnnotationChecker
-- [ ] 	@instanceValueInstance: SynchronizedAnnotationChecker
+- [X] 	@instanceValueInstance: SynchronizedAnnotationChecker
 @typeName: org.jetbrains.kotlin.resolve.BodyResolver
-- [ ] 	@instanceValueSingleton: MetaBodyResolver
+- [X] 	@instanceValueSingleton: MetaBodyResolver
 @typeName: org.jetbrains.kotlin.resolve.StatementFilter
-- [ ] 	@instanceValueImplicit: StatementFilter
+- [X] 	@instanceValueImplicit: StatementFilter
 @typeName: org.jetbrains.kotlin.types.expressions.ForLoopConventionsChecker
-- [ ] 	@instanceValueImplicit: ForLoopConventionsChecker
+- [X] 	@instanceValueImplicit: ForLoopConventionsChecker
 @typeName: org.jetbrains.kotlin.resolve.checkers.ExperimentalMarkerDeclarationAnnotationChecker
-- [ ] 	@instanceValueSingleton: ExperimentalMarkerDeclarationAnnotationChecker
+- [X] 	@instanceValueSingleton: ExperimentalMarkerDeclarationAnnotationChecker
 @typeName: org.jetbrains.kotlin.resolve.jvm.JavaDescriptorResolver
-- [ ] 	@instanceValueSingleton: JavaDescriptorResolver
+- [X] 	@instanceValueSingleton: JavaDescriptorResolver
 @typeName: org.jetbrains.kotlin.resolve.calls.tower.TowerResolver
-- [ ] 	@instanceValueImplicit: TowerResolver
+- [X] 	@instanceValueImplicit: TowerResolver
 ## Stop2
 
 @typeName: org.jetbrains.kotlin.diagnostics.DiagnosticSink
-- [ ] 	@instanceValueInstance: NoScopeRecordCliBindingTrace
+- [X] 	@instanceValueInstance: NoScopeRecordCliBindingTrace
 @typeName: org.jetbrains.kotlin.resolve.IdentifierChecker
-- [ ] 	@instanceValueInstance: JvmSimpleNameBacktickChecker
+- [X] 	@instanceValueInstance: JvmSimpleNameBacktickChecker
 @typeName: org.jetbrains.kotlin.serialization.deserialization.ErrorReporter
-- [ ] 	@instanceValueSingleton: TraceBasedErrorReporter
+- [X] 	@instanceValueSingleton: TraceBasedErrorReporter
 @typeName: org.jetbrains.kotlin.resolve.calls.components.CallableReferenceResolver
 - [ ] 	@instanceValueImplicit: CallableReferenceResolver
 @typeName: org.jetbrains.kotlin.resolve.calls.checkers.SafeCallChecker
@@ -258,7 +258,7 @@
 @typeName: org.jetbrains.kotlin.resolve.calls.components.KotlinCallCompleter
 - [ ] 	@instanceValueImplicit: KotlinCallCompleter
 @typeName: org.jetbrains.kotlin.resolve.BindingTraceContext
-- [ ] 	@instanceValueInstance: NoScopeRecordCliBindingTrace
+- [X] 	@instanceValueInstance: NoScopeRecordCliBindingTrace
 @typeName: org.jetbrains.kotlin.resolve.calls.checkers.InlineCheckerWrapper
 - [ ] 	@instanceValueInstance: InlineCheckerWrapper
 @typeName: org.jetbrains.kotlin.load.kotlin.KotlinClassFinder
@@ -534,7 +534,7 @@
 @typeName: org.jetbrains.kotlin.resolve.checkers.InlineClassDeclarationChecker
 - [ ] 	@instanceValueInstance: InlineClassDeclarationChecker
 @typeName: org.jetbrains.kotlin.cli.jvm.compiler.NoScopeRecordCliBindingTrace
-- [ ] 	@instanceValueInstance: NoScopeRecordCliBindingTrace
+- [X] 	@instanceValueInstance: NoScopeRecordCliBindingTrace
 @typeName: org.jetbrains.kotlin.resolve.calls.components.CallableReferenceOverloadConflictResolver
 - [ ] 	@instanceValueImplicit: CallableReferenceOverloadConflictResolver
 @typeName: org.jetbrains.kotlin.com.intellij.openapi.util.UserDataHolderBase
@@ -576,7 +576,7 @@
 @typeName: org.jetbrains.kotlin.resolve.jvm.JvmTypeSpecificityComparator
 - [ ] 	@instanceValueSingleton: JvmTypeSpecificityComparator
 @typeName: org.jetbrains.kotlin.cli.jvm.compiler.CliBindingTrace
-- [ ] 	@instanceValueInstance: NoScopeRecordCliBindingTrace
+- [X] 	@instanceValueInstance: NoScopeRecordCliBindingTrace
 @typeName: org.jetbrains.kotlin.resolve.jvm.checkers.FileClassAnnotationsChecker
 - [ ] 	@instanceValueInstance: FileClassAnnotationsChecker
 @typeName: org.jetbrains.kotlin.resolve.lazy.AbsentDescriptorHandler

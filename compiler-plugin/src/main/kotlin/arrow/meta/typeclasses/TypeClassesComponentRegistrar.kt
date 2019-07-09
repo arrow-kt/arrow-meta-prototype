@@ -2,8 +2,6 @@ package arrow.meta.typeclasses
 
 import arrow.meta.debug.resolution.MetaBodyResolver
 import arrow.meta.debug.resolution.MetaCallResolver
-import arrow.meta.debug.resolution.singleton.MetaExpressionTypingFacade
-import arrow.meta.debug.resolution.singleton.MetaExpressionTypingInternals
 import arrow.meta.extensions.CompilerContext
 import arrow.meta.extensions.ExtensionPhase
 import arrow.meta.extensions.MetaComponentRegistrar
@@ -48,6 +46,7 @@ class TypeClassesComponentRegistrar : MetaComponentRegistrar {
           container.useImpl<TypeClassPlatformDiagnosticSuppressor>()
           container.useImpl<MetaCallResolver>()
           container.useImpl<MetaBodyResolver>()
+          container.useImpl<>()
           // container.useImpl<MetaClassDataFinder>() <- Unknown
           // container.useImpl<MetaDiagnosticSink>() <- @UnknownPhase
           // container.useImpl<MetaPackageFragmentProvider>() <- @UnknownPhase
@@ -135,6 +134,7 @@ fun FunctionDescriptor.resolveCallArguments(): Unit {
     else it
   }
 }
+
 
 
 val ClassDescriptor.isExtensionAnnotated: Boolean
