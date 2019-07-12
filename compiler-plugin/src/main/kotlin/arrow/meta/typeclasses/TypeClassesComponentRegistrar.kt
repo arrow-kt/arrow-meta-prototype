@@ -2,8 +2,8 @@ package arrow.meta.typeclasses
 
 import arrow.meta.debug.resolution.MetaBodyResolver
 import arrow.meta.debug.resolution.MetaCallResolver
-import arrow.meta.debug.resolution.MetaFilePreprocessorExtension
-import arrow.meta.debug.resolution.singleton.MetaJvmPackagePartProvider
+import arrow.meta.debug.resolution.MetaExpressionTypingServices
+import arrow.meta.debug.resolution.singleton.MetaPlatformToKotlinClassMap
 import arrow.meta.extensions.CompilerContext
 import arrow.meta.extensions.ExtensionPhase
 import arrow.meta.extensions.MetaComponentRegistrar
@@ -42,13 +42,13 @@ class TypeClassesComponentRegistrar : MetaComponentRegistrar {
   override fun intercept(): List<ExtensionPhase> =
     meta(
       enableIr(),
-      storageComponent( // does not know about dpended Services
+      storageComponent( // does not know about depended Services
         registerModuleComponents = { container: StorageComponentContainer, platform, moduleDescriptor ->
           container.useImpl<ExtensionResolutionCallChecker>()
           container.useImpl<TypeClassPlatformDiagnosticSuppressor>()
           container.useImpl<MetaCallResolver>()
           container.useImpl<MetaBodyResolver>()
-          container.useImpl<MetaFilePreprocessorExtension>()
+          container.useImpl<MetaExpressionTypingServices>()
           // container.useImpl<MetaClassDataFinder>() <- Unknown
           // container.useImpl<MetaDiagnosticSink>() <- @UnknownPhase
           // container.useImpl<MetaPackageFragmentProvider>() <- @UnknownPhase

@@ -17,27 +17,27 @@ class MetaExpressionTypingInternals(val delegate: MetaExpressionTypingInternalsI
     get() = delegate.component
 
   override fun checkInExpression(callElement: KtElement, operationSign: KtSimpleNameExpression, leftArgument: ValueArgument, right: KtExpression?, context: ExpressionTypingContext): KotlinTypeInfo {
-    println("MetaExpressionTypingInternals.checkInExpression: $callElement, $operationSign, $leftArgument, $right, $context")
+    println("MetaExpressionTypingFacade.checkInExpression: $callElement, $operationSign, $leftArgument, $right, $context")
     return delegate.checkInExpression(callElement, operationSign, leftArgument, right, context)
   }
 
   override suspend fun checkStatementType(expression: KtExpression, context: ExpressionTypingContext) {
-    println("MetaExpressionTypingInternals.checkStatementType: $expression, $context")
+    println("MetaExpressionTypingFacade.checkStatementType: $expression, $context")
     delegate.checkStatementType(expression, context)
   }
 
   override fun safeGetTypeInfo(p0: KtExpression, p1: ExpressionTypingContext?): KotlinTypeInfo {
-    println("MetaExpressionTypingInternals.safeGetTypeInfo: $p0, $p1")
+    println("MetaExpressionTypingFacade.safeGetTypeInfo: $p0, $p1")
     return delegate.safeGetTypeInfo(p0, p1)
   }
 
   override fun getTypeInfo(p0: KtExpression, p1: ExpressionTypingContext?): KotlinTypeInfo {
-    println("MetaExpressionTypingInternals.getTypeInfo: $p0, $p1")
+    println("MetaExpressionTypingFacade.getTypeInfo: $p0, $p1")
     return delegate.getTypeInfo(p0, p1)
   }
 
   override fun getTypeInfo(p0: KtExpression, p1: ExpressionTypingContext?, p2: Boolean): KotlinTypeInfo {
-    println("MetaExpressionTypingInternals.getTypeInfo: $p0, $p1, $p2")
+    println("MetaExpressionTypingFacade.getTypeInfo: $p0, $p1, $p2")
     return delegate.getTypeInfo(p0, p1, p2)
   }
 }
