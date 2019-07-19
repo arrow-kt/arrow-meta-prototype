@@ -6,7 +6,7 @@ import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.WrappedTypeFactory
 
 /**
- * check out [setupAdHocResolve in org.jetbrains.kotlin.idea.caches.lightClasses.IDELightClassContexts]
+ * check out setupAdHocResolve in [org.jetbrains.kotlin.idea.caches.lightClasses.IDELightClassContexts]
  */
 class MetaWrappedTypeFactory(val storageManager: StorageManager) : WrappedTypeFactory(storageManager) {
   override fun createDeferredType(trace: BindingTrace, computation: () -> KotlinType): KotlinType {

@@ -2,8 +2,7 @@ package arrow.meta.typeclasses
 
 import arrow.meta.debug.resolution.MetaBodyResolver
 import arrow.meta.debug.resolution.MetaCallResolver
-import arrow.meta.debug.resolution.MetaExpressionTypingServices
-import arrow.meta.debug.resolution.singleton.MetaPlatformToKotlinClassMap
+import arrow.meta.debug.resolution.singleton.MetaJavaResolverSettings
 import arrow.meta.extensions.CompilerContext
 import arrow.meta.extensions.ExtensionPhase
 import arrow.meta.extensions.MetaComponentRegistrar
@@ -48,11 +47,8 @@ class TypeClassesComponentRegistrar : MetaComponentRegistrar {
           container.useImpl<TypeClassPlatformDiagnosticSuppressor>()
           container.useImpl<MetaCallResolver>()
           container.useImpl<MetaBodyResolver>()
-          container.useImpl<MetaExpressionTypingServices>()
-          // container.useImpl<MetaClassDataFinder>() <- Unknown
-          // container.useImpl<MetaDiagnosticSink>() <- @UnknownPhase
+          container.useImpl<MetaJavaResolverSettings>()
           // container.useImpl<MetaPackageFragmentProvider>() <- @UnknownPhase
-          // container.useImpl<MetaConstraintSystemBuilder>() //<- @UnknownPhase @throws ContainerConsistencyException
           // container.useImpl<MetaPlatformDependentAnalyzerServices>() <- not sure if that works,
           // because it is usually called with container.configureModule
           // only for my debugging

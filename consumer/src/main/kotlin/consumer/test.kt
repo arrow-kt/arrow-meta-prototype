@@ -24,5 +24,7 @@ object test {
 
   @JvmStatic
   fun main(args: Array<String>) {
+    val d : Int = 8
+    val h = d.compareTo(7)
   }
 }
