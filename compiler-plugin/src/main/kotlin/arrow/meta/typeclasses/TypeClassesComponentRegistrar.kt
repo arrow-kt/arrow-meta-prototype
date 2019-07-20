@@ -1,5 +1,6 @@
 package arrow.meta.typeclasses
 
+import arrow.meta.debug.unusedServices.MetaBinaryClassAnnotationAndConstantLoader
 import arrow.meta.debug.resolution.MetaBodyResolver
 import arrow.meta.debug.resolution.MetaCallResolver
 import arrow.meta.extensions.CompilerContext
@@ -46,7 +47,7 @@ class TypeClassesComponentRegistrar : MetaComponentRegistrar {
           container.useImpl<TypeClassPlatformDiagnosticSuppressor>()
           container.useImpl<MetaCallResolver>()
           container.useImpl<MetaBodyResolver>()
-          container.useImpl<>()
+          container.useImpl<MetaBinaryClassAnnotationAndConstantLoader>()
           // container.useImpl<MetaPackageFragmentProvider>() <- @UnknownPhase
           // container.useImpl<MetaPlatformDependentAnalyzerServices>() <- not sure if that works,
           // because it is usually called with container.configureModule
