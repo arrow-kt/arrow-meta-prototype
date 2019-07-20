@@ -20,6 +20,8 @@ import arrow.sample.MyNumber
 //
 ////import arrow.core.ForOption
 //
+typealias K = Int
+
 object test {
 
   @JvmStatic
