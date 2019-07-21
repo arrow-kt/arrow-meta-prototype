@@ -245,7 +245,7 @@ sealed class ExtensionResolution {
     if (descriptor != null) {
       val packageDescriptor = descriptor as PackageFragmentDescriptor
       val moduleDescriptor = packageDescriptor.containingDeclaration
-      val subpackageNames = moduleDescriptor.getSubPackagesOf(packageDescriptor.fqName, { _ -> true })
+      val subpackageNames = moduleDescriptor.getSubPackagesOf(packageDescriptor.fqName) { true }
       return subpackageNames.map { moduleDescriptor.getPackage(it) }
     }
     return emptyList()
@@ -254,7 +254,7 @@ sealed class ExtensionResolution {
   private fun findPackageDescriptor(lookingFor: ValueParameterDescriptor): DeclarationDescriptor? {
     var descriptor: DeclarationDescriptor? = lookingFor.containingDeclaration
     while (descriptor != null && descriptor !is PackageFragmentDescriptor) {
-      descriptor = descriptor!!.containingDeclaration
+      descriptor = descriptor.containingDeclaration
     }
     return descriptor
   }
@@ -265,7 +265,7 @@ sealed class ExtensionResolution {
     substitutions: List<TypeSubstitution>,
     lookInSupertypes: Boolean
   ): ExtensionCompatibilityResult {
-    val declarations = scope.getContributedDescriptors(DescriptorKindFilter.ALL) { name -> true }
+    val declarations = scope.getContributedDescriptors(DescriptorKindFilter.ALL) { true }
     val candidates = java.util.ArrayList<ClassDescriptor>()
     val newSubstitutions = java.util.ArrayList(substitutions)
 
@@ -296,11 +296,11 @@ sealed class ExtensionResolution {
     val supertypes = candidate.constructor.supertypes
     val newSubstitutions = java.util.ArrayList(substitutions)
     for (supertype in supertypes) {
-      val result = isReplaceable(supertype, type, newSubstitutions, lookInSupertypes)
-      if (!result.canBeReplaced) {
+      val substitutionResult = isReplaceable(supertype, type, newSubstitutions, lookInSupertypes)
+      if (!substitutionResult.canBeReplaced) {
         return SubstitutionResult(false, substitutions)
       } else {
-        newSubstitutions.addAll(result.substitutions)
+        newSubstitutions.addAll(substitutionResult.substitutions)
       }
     }
     return SubstitutionResult(true, newSubstitutions)
@@ -351,15 +351,15 @@ sealed class ExtensionResolution {
     target: KotlinType,
     substitutions: List<TypeSubstitution>
   ): Pair<KotlinType, KotlinType>? {
-    if (candidate.constructor.toString().equals(target.constructor.toString())) {
+    if (candidate.constructor.toString() == target.constructor.toString()) {
       return candidate to target
     }
     val candidateSubstitution = findSubstitution(candidate, substitutions)
-    if ((candidateSubstitution?.constructor?.toString() ?: "").equals(target.constructor.toString())) {
+    if ((candidateSubstitution?.constructor?.toString() ?: "") == target.constructor.toString()) {
       return candidateSubstitution!! to target
     }
     val targetSubstitution = findSubstitution(target, substitutions)
-    if ((targetSubstitution?.constructor?.toString() ?: "").equals(candidate.constructor.toString())) {
+    if ((targetSubstitution?.constructor?.toString() ?: "") == candidate.constructor.toString()) {
       return candidate to targetSubstitution!!
     }
 
@@ -369,7 +369,7 @@ sealed class ExtensionResolution {
   private fun findSubstitution(candidate: KotlinType, substitutions: List<TypeSubstitution>): KotlinType? {
     return substitutions
       .reversed()
-      .firstOrNull { it.source.equals(candidate) }
+      .firstOrNull { it.source == candidate }
       ?.target
   }
 }

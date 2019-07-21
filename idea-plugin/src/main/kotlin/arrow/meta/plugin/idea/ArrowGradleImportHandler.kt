@@ -16,5 +16,5 @@ class ArrowGradleImportHandler : GradleProjectImportHandler {
         ArrowImportHandler.modifyCompilerArguments(facet, PLUGIN_GRADLE_JAR)
     }
 
-    private val PLUGIN_GRADLE_JAR = "gradle-plugin"
+    private val PLUGIN_GRADLE_JAR = "compiler-plugin-all"
 }

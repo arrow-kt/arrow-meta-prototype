@@ -32,13 +32,13 @@ internal object ArrowImportHandler {
     logger.info("Probing for Gradle plugin")
 
     val facetSettings = facet.configuration.settings
-    val commonArguments = facetSettings.compilerArguments ?: CommonCompilerArguments.DummyImpl()
+    val commonArguments = facetSettings.compilerArguments
     val regex = ".*\\${File.separator}?$buildSystemPluginJar-.*\\.jar".toRegex()
 
     // Remove the incompatible compiler plugin from the classpath if found
     var isEnabled = false
     val oldPluginClasspaths =
-      (commonArguments.pluginClasspaths ?: emptyArray()).filterTo(mutableListOf()) {
+      (commonArguments?.pluginClasspaths ?: emptyArray()).filterTo(mutableListOf()) {
         val match = regex.matches(it) && validateJar(it)
         logger.debug("$it [$match]")
         isEnabled = match
@@ -51,7 +51,7 @@ internal object ArrowImportHandler {
     else
       oldPluginClasspaths
 
-    commonArguments.pluginClasspaths = newPluginClasspaths.toTypedArray()
+    commonArguments?.pluginClasspaths = newPluginClasspaths.toTypedArray()
     facetSettings.compilerArguments = commonArguments
   }
 
@@ -66,7 +66,7 @@ internal object ArrowImportHandler {
       val jar = JarInputStream(FileInputStream(path))
       val manifest = jar.manifest
       manifest.mainAttributes.getValue("Implementation-Title")
-        .startsWith("arrow.meta.plugin.gradle")
+        .startsWith("arrow.meta.plugin.compiler")
     } catch (_: Exception) {
       false
     }

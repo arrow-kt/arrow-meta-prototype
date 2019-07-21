@@ -16,10 +16,8 @@ import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.descriptors.PropertyAccessorDescriptor
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor
 import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
-import org.jetbrains.kotlin.descriptors.annotations.Annotations
 import org.jetbrains.kotlin.descriptors.impl.AnonymousFunctionDescriptor
 import org.jetbrains.kotlin.descriptors.impl.LazyClassReceiverParameterDescriptor
-import org.jetbrains.kotlin.descriptors.impl.ReceiverParameterDescriptorImpl
 import org.jetbrains.kotlin.descriptors.impl.SyntheticFieldDescriptor
 import org.jetbrains.kotlin.descriptors.impl.ValueParameterDescriptorImpl
 import org.jetbrains.kotlin.diagnostics.Errors
@@ -28,7 +26,6 @@ import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtDeclarationWithBody
 import org.jetbrains.kotlin.psi.KtPrimaryConstructor
 import org.jetbrains.kotlin.psi.KtProperty
-import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.KtSecondaryConstructor
 import org.jetbrains.kotlin.resolve.AnalyzerExtensions
 import org.jetbrains.kotlin.resolve.AnnotationChecker
@@ -50,8 +47,6 @@ import org.jetbrains.kotlin.resolve.scopes.LexicalScope
 import org.jetbrains.kotlin.resolve.scopes.LexicalScopeImpl
 import org.jetbrains.kotlin.resolve.scopes.LexicalScopeKind
 import org.jetbrains.kotlin.resolve.scopes.LocalRedeclarationChecker
-import org.jetbrains.kotlin.resolve.scopes.receivers.ExpressionReceiver
-import org.jetbrains.kotlin.resolve.scopes.receivers.ExtensionReceiver
 import org.jetbrains.kotlin.types.DeferredType
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingServices
@@ -59,7 +54,7 @@ import org.jetbrains.kotlin.types.expressions.PreliminaryDeclarationVisitor
 import org.jetbrains.kotlin.types.expressions.ValueParameterResolver
 
 /**
- * These service overrides would need to be reviewed on each compiler release to encure
+ * These service overrides would need to be reviewed on each compiler release to ensure
  * they stay up to date with the mutable requirements and initialization order the
  * Kotlin compiler assumes.
  */
@@ -153,12 +148,12 @@ class MetaBodyResolver(
     trace: BindingTrace,
     function: KtDeclarationWithBody,
     functionDescriptor: FunctionDescriptor,
-    scope: LexicalScope,
+    lexicalScope: LexicalScope,
     beforeBlockBody: Function1<LexicalScope, DataFlowInfo>?,
-    // Creates wrapper scope for header resolution if necessary (see resolveSecondaryConstructorBody)
+    // Creates wrapper lexicalScope for header resolution if necessary (see resolveSecondaryConstructorBody)
     headerScopeFactory: Function1<LexicalScope, LexicalScope>?
   ) {
-    var scope = scope
+    var scope = lexicalScope
     PreliminaryDeclarationVisitor.createForDeclaration(function, trace, languageVersionSettings)
 
     val receiverParameterDescriptor = functionDescriptor.dispatchReceiverParameter
@@ -166,11 +161,9 @@ class MetaBodyResolver(
       val lazyClassReceiverParameterDescriptor = receiverParameterDescriptor as LazyClassReceiverParameterDescriptor?
       val descriptor = lazyClassReceiverParameterDescriptor!!.containingDeclaration
       if (descriptor is LazyClassDescriptor) {
-        val lazyClassDescriptor = descriptor
-        val memberScope = lazyClassDescriptor.unsubstitutedMemberScope
+        val memberScope = descriptor.unsubstitutedMemberScope
         if (memberScope is LazyClassMemberScope) {
-          val lazyClassMemberScope = memberScope
-          val constructor = lazyClassMemberScope.getPrimaryConstructor()
+          val constructor = memberScope.getPrimaryConstructor()
           if (constructor != null) {
             val members = constructor.valueParameters
             for (member in members) {
@@ -190,7 +183,7 @@ class MetaBodyResolver(
       else it
     }
 
-    val headerScope = if (headerScopeFactory != null) headerScopeFactory!!.invoke(innerScope) else innerScope
+    val headerScope = if (headerScopeFactory != null) headerScopeFactory.invoke(innerScope) else innerScope
     valueParameterResolver.resolveValueParameters(
       valueParameters, valueParameterDescriptors, headerScope, outerDataFlowInfo, trace
     )
@@ -226,7 +219,7 @@ class MetaBodyResolver(
 
     if (function.hasBody()) {
       expressionTypingServices.checkFunctionReturnType(
-        innerScope, function, functionDescriptor, if (dataFlowInfo != null) dataFlowInfo else outerDataFlowInfo, null, trace)
+        innerScope, function, functionDescriptor, dataFlowInfo ?: outerDataFlowInfo, null, trace)
     }
 
     assert(functionDescriptor.returnType != null)
@@ -240,7 +233,7 @@ class MetaBodyResolver(
     val metaValueParameterDescriptor =
       if (valueParameterDescriptor is MetaValueParameterDescriptor) valueParameterDescriptor
       else MetaValueParameterDescriptor(project, trace, valueParameterDescriptor as ValueParameterDescriptorImpl)
-    var innerScope = innerScope
+    var scope = innerScope
     val ownerDescriptor = AnonymousFunctionDescriptor(valueParameterDescriptor, //@with S:
       metaValueParameterDescriptor.annotations,
       CallableMemberDescriptor.Kind.DECLARATION,
@@ -253,13 +246,13 @@ class MetaBodyResolver(
       metaValueParameterDescriptor.returnType,
       Modality.FINAL,
       metaValueParameterDescriptor.visibility)
-    innerScope = LexicalScopeImpl(
-      parent = innerScope,
+      scope = LexicalScopeImpl(
+      parent = scope,
       ownerDescriptor = metaValueParameterDescriptor,
       isOwnerDescriptorAccessibleByLabel = true,
       implicitReceiver = metaValueParameterDescriptor.extensionReceiverParameter,
       kind = LexicalScopeKind.FUNCTION_INNER_SCOPE
     )
-    return innerScope
+    return scope
   }
 }

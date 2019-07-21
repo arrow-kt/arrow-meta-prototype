@@ -2,7 +2,7 @@
 
 **Run the sample higherkind plugin with**
 ```
-./gradlew clean :app:build :consumer:execute -Dorg.gradle.debug=true -Dkotlin.compiler.execution.strategy="in-process"
+./gradlew clean :core:build :consumer:execute -Dkotlin.compiler.execution.strategy="in-process"
 ```
 
 **Please document all findings in the code**
@@ -12,7 +12,7 @@ Sample project demonstrating how to create a basic Kotlin compiler plugin.
 Run this command to see it in action:
 
 ```text
-$ ./gradlew :app:build
+$ ./gradlew :consumer:build
 ```
 
 # Resources

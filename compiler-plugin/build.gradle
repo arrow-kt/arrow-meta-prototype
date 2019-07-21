@@ -36,3 +36,8 @@ jar {
 //configurations.create("embeddable") {
 //  extendsFrom(configurations.shadow)
 //}
+task customFatJar(type: Jar) {
+  baseName = 'compiler-plugin-all'
+  from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+  with jar
+}
