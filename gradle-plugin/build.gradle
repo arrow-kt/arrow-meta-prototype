@@ -35,6 +35,12 @@ jar {
   }
 }
 
+task customFatJar(type: Jar) {
+  baseName = 'gradle-plugin-all'
+  from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+  with jar
+}
+
 gradlePlugin {
   plugins {
     arrow {
