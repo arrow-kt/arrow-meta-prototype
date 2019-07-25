@@ -30,7 +30,7 @@ val MetaComponentRegistrar.higherKindedTypes: List<ExtensionPhase>
       }
     )
 
-private val Name.invariant: String
+val Name.invariant: String
   get() = identifier
     .replace("out ", "")
     .replace("in ", "")
