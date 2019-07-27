@@ -1,7 +1,7 @@
 package consumer
 
 import arrow.Kind
-import arrow.extension
+import arrow.`*`
 
 /** HigherKinds **/
 sealed class Option<out A> {
@@ -9,6 +9,12 @@ sealed class Option<out A> {
   data class Some<out A>(val value: A) : Option<A>()
 
   fun goT() = 4f
+
+  fun <B> map(f: (A) -> B): Option<B> =
+    when (this) {
+      None -> None
+      is Some -> Some(f(value))
+    }
 }
 
 sealed class Either<out A, out B> {
@@ -48,3 +54,14 @@ fun <A> Expr<A>.fold(): Nothing = TODO()
 data class Const(val number: Double) : Expr<Int>()
 data class Sum<A>(val e1: Expr<A>, val e2: Expr<A>) : Expr<A>()
 object NotANumber : Expr<Nothing>()
+/*
+fun functorForOption(): Functor<ForOption> = object : Functor<ForOption> {
+  override fun <A, B> OptionOf<A>.map(f: (A) -> B): Option<B> =
+    (this as Option<A>).map(f)
+}
+
+fun <F> Kind<F, Int>.addOne(FF: Functor<F> = `*`): Kind<F, Int> =
+  map { it + 1 }
+
+fun testConversion(): Any =
+  Option.Some(1).addOne()*/
