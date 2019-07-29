@@ -64,4 +64,4 @@ fun <F> Kind<F, Int>.addOne(FF: Functor<F> = `*`): Kind<F, Int> =
   map { it + 1 }
 
 fun testConversion(): Any =
-  Option.Some(1).addOne()*/
+  Option.Some(1).addOne()
