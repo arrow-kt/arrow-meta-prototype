@@ -23,11 +23,11 @@ interface ClassOrObject : Quote<KtElement, KtClass, ClassOrObject.ClassScope> {
     val typeParameters: Name,
     val valueParameters: Name,
     val supertypes: Name,
-    val sealedVariants: List<Name>,
-    val body: Name,
-    val functions: List<Name>,
-    val primaryConstructorParameters: List<Name>,
-    val properties: List<Name>
+    //val sealedVariants: List<String>,
+    val body: Name
+    // val functions: List<Name>,
+    //val primaryConstructorParameters: List<Name>,
+    //val properties: List<Name>
   )
 
   override fun transform(ktElement: KtClass): ClassScope =
@@ -40,11 +40,11 @@ interface ClassOrObject : Quote<KtElement, KtClass, ClassOrObject.ClassScope> {
       valueParameters = if (ktElement.isInterface()) Name.identifier("")
       else Name.identifier(ktElement.renderValueParameters()),
       supertypes = Name.identifier(ktElement.renderSuperTypes()),
-      body = Name.identifier(ktElement.body?.text?.drop(1)?.dropLast(1).orEmpty()),
-      functions = ktElement.renderFunctions().map { it.nameAsSafeName },
-      properties = ktElement.renderProperties().map { it.nameAsSafeName },
-      primaryConstructorParameters = ktElement.renderPrimaryParameters().map { it.nameAsSafeName },
-      sealedVariants = tran(ktElement).map { it.nameAsSafeName }
+      body = Name.identifier(ktElement.body?.text?.drop(1)?.dropLast(1).orEmpty())
+      //functions = ktElement.renderFunctions().map { it.nameAsSafeName },
+      //properties = ktElement.renderProperties().map { it.nameAsSafeName }
+      //primaryConstructorParameters = ktElement.renderPrimaryParameters().map { it.nameAsSafeName }
+      //sealedVariants = ktElement.sealedSubclasses()
     )
 
 
@@ -54,8 +54,24 @@ interface ClassOrObject : Quote<KtElement, KtClass, ClassOrObject.ClassScope> {
       else it
     }
 
-  fun tran(k: KtClassOrObject) = // not working ATM
-    (k as ClassDescriptor).sealedSubclasses.filterIsInstance<ClassDescriptor>().map { it as KtClassOrObject }
+  fun KtClass.sealedSubclasses(): List<String> = try {
+    val con = fqName?.run { quasiQuoteContext.compilerContext.getStoredDescriptor(this) }?.sealedSubclasses?.filterIsInstance<ClassDescriptor>()
+    listOf("${con?.isEmpty()}")
+  } catch (e: IllegalStateException) {
+    listOf("exception")
+  } catch (e: RuntimeException) {
+    listOf("runexc")
+  } catch (e: Exception) {
+    listOf("what")
+  } finally {
+    listOf("")
+  }
+/*
+*  .filter { it in quasiQuoteContext.compilerContext.storedDescriptors() }*/
+  /*containingKtFile.declarations
+    .filter { it is KtClassOrObject && (it as KtClass).renderSuperTypes().contains((this as KtNamedDeclaration).nameAsSafeName.toString()) }
+    .map { it as KtNamedDeclaration }*/
+  // (this as KtClass).run { this::class.sealedSubclasses.filter { (it as KtClassOrObject).superTypeListEntries.contains(this@ClassOrObject as KtSuperTypeListEntry) } }
 
   override fun parse(template: String): KtClass =
     quasiQuoteContext.compilerContext.ktPsiElementFactory.createClass(template)
@@ -74,10 +90,10 @@ interface ClassOrObject : Quote<KtElement, KtClass, ClassOrObject.ClassScope> {
     findFunctionByName(f) != null
 
   fun KtClassOrObject.renderFunctions(): List<KtNamedDeclaration> =
-    declarations.filterIsInstance<KtNamedFunction>()
+    declarations.filter { it is KtNamedFunction }.map { it as KtNamedDeclaration }
 
   fun KtClassOrObject.renderProperties(): List<KtNamedDeclaration> =
-    declarations.filterIsInstance<KtProperty>()
+    declarations.filter { it is KtProperty }.map { it as KtNamedDeclaration }
 
   fun KtClassOrObject.renderPrimaryParameters(): List<KtNamedDeclaration> =
     primaryConstructorParameters.filter { it.hasValOrVar() }.fold(emptyList())

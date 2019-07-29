@@ -2,7 +2,6 @@ package arrow.meta.autofold
 
 import arrow.meta.extensions.ExtensionPhase
 import arrow.meta.extensions.MetaComponentRegistrar
-import arrow.meta.higherkind.invariant
 import arrow.meta.qq.classOrObject
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.psiUtil.findFunctionByName
@@ -13,9 +12,10 @@ val MetaComponentRegistrar.autoFold: List<ExtensionPhase>
     meta(
       classOrObject(::isAutoFoldable) { c ->
         println("Processing Sealed class: ${c.name}")
-        functions.forEach(::println)
-        sealedVariants.forEach(::println)
-        val returnType = typeParameters.invariant.last().inc() // supports currently arity of 24
+        //functions.forEach(::println)
+        // println("${c.name}: modality = $modality")
+        // sealedVariants.take(4).forEach(::println)
+        // val returnType = typeParameters.invariant.last().inc() // supports currently arity of 24
         listOfNotNull(
           /*"""
             |inline fun <$returnType> fold(
