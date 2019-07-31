@@ -1,6 +1,9 @@
 package arrow.meta.qq
 
+import arrow.meta.autofold.SealedSubclass
+import arrow.meta.autofold.sealedSubclasses
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
+import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtClassOrObject
@@ -23,11 +26,12 @@ interface ClassOrObject : Quote<KtElement, KtClass, ClassOrObject.ClassScope> {
     val typeParameters: Name,
     val valueParameters: Name,
     val supertypes: Name,
-    //val sealedVariants: List<String>,
-    val body: Name
-    // val functions: List<Name>,
-    //val primaryConstructorParameters: List<Name>,
-    //val properties: List<Name>
+    val sealedVariants: List<SealedSubclass>,
+    val body: Name,
+    val functions: List<Name>,
+    val valueParameterNames: List<Name>,
+    val properties: List<Name>,
+    val classDescriptor: ClassDescriptor?
   )
 
   override fun transform(ktElement: KtClass): ClassScope =
@@ -40,11 +44,12 @@ interface ClassOrObject : Quote<KtElement, KtClass, ClassOrObject.ClassScope> {
       valueParameters = if (ktElement.isInterface()) Name.identifier("")
       else Name.identifier(ktElement.renderValueParameters()),
       supertypes = Name.identifier(ktElement.renderSuperTypes()),
-      body = Name.identifier(ktElement.body?.text?.drop(1)?.dropLast(1).orEmpty())
-      //functions = ktElement.renderFunctions().map { it.nameAsSafeName },
-      //properties = ktElement.renderProperties().map { it.nameAsSafeName }
-      //primaryConstructorParameters = ktElement.renderPrimaryParameters().map { it.nameAsSafeName }
-      //sealedVariants = ktElement.sealedSubclasses()
+      body = Name.identifier(ktElement.body?.text?.drop(1)?.dropLast(1).orEmpty()),
+      functions = ktElement.renderFunctions().map { it.nameAsSafeName },
+      properties = ktElement.renderProperties().map { it.nameAsSafeName },
+      valueParameterNames = ktElement.renderPrimaryParameters().map { it.nameAsSafeName },
+      sealedVariants = ktElement.sealedSubclasses(),
+      classDescriptor = ktElement.classDescriptor(ktElement.fqName.toString())
     )
 
 
@@ -53,19 +58,6 @@ interface ClassOrObject : Quote<KtElement, KtClass, ClassOrObject.ClassScope> {
       if (isInterface()) it.replace("interface (.*?)\\(\\)".toRegex(), "interface $1")
       else it
     }
-
-  fun KtClass.sealedSubclasses(): List<String> = try {
-    val con = fqName?.run { quasiQuoteContext.compilerContext.getStoredDescriptor(this) }?.sealedSubclasses?.filterIsInstance<ClassDescriptor>()
-    listOf("${con?.isEmpty()}")
-  } catch (e: IllegalStateException) {
-    listOf("exception")
-  } catch (e: RuntimeException) {
-    listOf("runexc")
-  } catch (e: Exception) {
-    listOf("what")
-  } finally {
-    listOf("")
-  }
 /*
 *  .filter { it in quasiQuoteContext.compilerContext.storedDescriptors() }*/
   /*containingKtFile.declarations
@@ -90,14 +82,17 @@ interface ClassOrObject : Quote<KtElement, KtClass, ClassOrObject.ClassScope> {
     findFunctionByName(f) != null
 
   fun KtClassOrObject.renderFunctions(): List<KtNamedDeclaration> =
-    declarations.filter { it is KtNamedFunction }.map { it as KtNamedDeclaration }
+    declarations.filterIsInstance<KtNamedFunction>()
 
   fun KtClassOrObject.renderProperties(): List<KtNamedDeclaration> =
-    declarations.filter { it is KtProperty }.map { it as KtNamedDeclaration }
+    declarations.filterIsInstance<KtProperty>()
 
   fun KtClassOrObject.renderPrimaryParameters(): List<KtNamedDeclaration> =
     primaryConstructorParameters.filter { it.hasValOrVar() }.fold(emptyList())
     { acc, ktParameter -> acc + (ktParameter as KtNamedDeclaration) }
+
+  fun KtClass.classDescriptor(fqName: String): ClassDescriptor? =
+    quasiQuoteContext.compilerContext.getStoredDescriptor(FqName(fqName))
 
   companion object : Quote.Factory<KtElement, KtClass, ClassScope> {
     override operator fun invoke(

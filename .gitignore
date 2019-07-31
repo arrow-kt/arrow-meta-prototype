@@ -134,3 +134,4 @@ target/
 .bash_profile
 
 compiler-plugin/src/main/kotlin/arrow/meta/services/
+java_pid*

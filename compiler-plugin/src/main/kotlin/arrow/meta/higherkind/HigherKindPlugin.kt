@@ -42,7 +42,7 @@ private val KtClass.partialTypeParameters: String
       it.nameAsSafeName.identifier
     }
 
-private val KtClass.arity: Int
+val KtClass.arity: Int
   get() = typeParameters.size
 
 private val KtClass.kindAritySuffix: String

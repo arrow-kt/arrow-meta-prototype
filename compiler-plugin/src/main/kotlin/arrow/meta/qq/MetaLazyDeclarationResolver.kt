@@ -107,7 +107,7 @@ class MetaLazyDeclarationResolver(
 //      override fun hasPrimaryConstructor(): Boolean = false
 //      override fun getPrimaryConstructor(): KtPrimaryConstructor? = null
 //      override fun getPrimaryConstructorModifierList(): KtModifierList? = null
-//      override fun getPrimaryConstructorParameters(): List<KtParameter> = emptyList()
+//      override fun getValueParameterNames(): List<KtParameter> = emptyList()
 //      override fun getSecondaryConstructors(): List<KtSecondaryConstructor> = emptyList()
 //
 //      override fun getPsiOrParent(): KtElement = (packageDescriptor.findPsi() ?: parent!!) as KtElement
