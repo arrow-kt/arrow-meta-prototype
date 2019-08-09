@@ -91,8 +91,12 @@ interface ClassOrObject : Quote<KtElement, KtClass, ClassOrObject.ClassScope> {
     primaryConstructorParameters.filter { it.hasValOrVar() }.fold(emptyList())
     { acc, ktParameter -> acc + (ktParameter as KtNamedDeclaration) }
 
-  fun KtClass.classDescriptor(fqName: String): ClassDescriptor? =
-    quasiQuoteContext.compilerContext.getStoredDescriptor(FqName(fqName))
+  fun KtClass.classDescriptor(fqName: String): ClassDescriptor? {
+    val fq = FqName(fqName)
+    val r = quasiQuoteContext.compilerContext
+    val d = r.getStoredDescriptor(fq) // empty
+    return d
+  }
 
   companion object : Quote.Factory<KtElement, KtClass, ClassScope> {
     override operator fun invoke(
@@ -102,7 +106,7 @@ interface ClassOrObject : Quote<KtElement, KtClass, ClassOrObject.ClassScope> {
       map: ClassScope.(quotedTemplate: KtClass) -> List<String>
     ): ClassOrObject =
       object : ClassOrObject {
-        override val quasiQuoteContext: QuasiQuoteContext = quasiQuoteContext
+        override val quasiQuoteContext: QuasiQuoteContext = quasiQuoteContext // needs to have more info
         override fun KtClass.match(): Boolean = match(this)
         override fun ClassScope.map(quotedTemplate: KtClass): List<String> = map(quotedTemplate)
         override val containingDeclaration: KtElement = containingDeclaration

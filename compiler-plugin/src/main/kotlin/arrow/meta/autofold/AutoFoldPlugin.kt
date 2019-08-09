@@ -65,7 +65,8 @@ data class SealedSubclass(val simpleName: Name, val fqName: FqName?, val typeVar
  - directly get the ClassDescriptor through reflection... in most instances [::reflectionBasedSealedSubclasses]
  */
 fun KtClass.sealedSubclasses(): List<SealedSubclass> {
-  //println(reflectionBasedSealedSubclasses())
+  val s = reflectionBasedSealedSubclasses()
+  println(s)
   return innerSealedSubclasses()
 }
 
@@ -92,7 +93,7 @@ fun KtClass.innerSealedSubclasses(): List<SealedSubclass> =
 fun ClassDescriptor?.findSealedSubclasses()/*:  List<SealedSubclass> */ =
   if (this != null) {
     println(sealedSubclasses.size)
-    // sealedSubclasses.forEach { println("classDesc: ${it.typeConstructor}") }
+    sealedSubclasses.forEach { println("classDesc: ${it.typeConstructor}") }
     sealedSubclasses.map { SealedSubclass(it.name, it.fqNameSafe, if (it is KtClass) it.renderTypeParameters() else "") }
   } else emptyList()
 
