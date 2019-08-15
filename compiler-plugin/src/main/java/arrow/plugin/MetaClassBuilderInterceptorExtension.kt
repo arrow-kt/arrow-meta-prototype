@@ -15,11 +15,13 @@ import org.jetbrains.kotlin.diagnostics.DiagnosticSink
 import org.jetbrains.kotlin.js.resolve.diagnostics.findPsi
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtExpression
+import org.jetbrains.kotlin.psi.KtThrowExpression
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.calls.callUtil.getType
 import org.jetbrains.kotlin.resolve.calls.tower.isSynthesized
 import org.jetbrains.kotlin.resolve.jvm.diagnostics.JvmDeclarationOrigin
 import org.jetbrains.kotlin.types.KotlinType
+import org.jetbrains.kotlin.types.typeUtil.isNothingOrNullableNothing
 import org.jetbrains.kotlin.types.typeUtil.isUnit
 import org.jetbrains.org.objectweb.asm.MethodVisitor
 
@@ -29,8 +31,6 @@ internal class MetaClassBuilder(
   private val bindingContext: BindingContext
 ) : DelegatingClassBuilder() {
   override fun getDelegate(): ClassBuilder = builder
-
-
 
   override fun newMethod(
     origin: JvmDeclarationOrigin,
@@ -55,11 +55,11 @@ internal class MetaClassBuilder(
       !functionName.startsWith("<set")) {
       val functionPsi = function.findPsi()
       //if the function returns Unit then it should have been suspended since all it can do is produce effects
-      if (function.returnType?.isUnit() == true) {
+      if (function.returnType?.isUnit() == true || function.returnType?.isNothingOrNullableNothing() == true) {
         functionPsi.let {
           messageCollector.report(
             ERROR,
-            "Unit return on a non suspended function: ${function.name}",
+            "Unit or Nothing return on a non suspended function: ${function.name}",
             MessageUtil.psiElementToMessageLocation(it)
           )
         }
@@ -73,6 +73,12 @@ internal class MetaClassBuilder(
       override fun visitElement(element: PsiElement?) {
         if (element is KtCallExpression) {
           checkExpressionPurity(descriptor, element)
+        } else if (element is KtThrowExpression) {
+          messageCollector.report(
+            ERROR,
+            "Impure expression in function ${descriptor.name}: `${element.text}` returning `Nothing` due to `throw` expression only allowed in `suspend` functions\nGenerally, it is recommended NOT to `throw` Exception and instead to ",
+            MessageUtil.psiElementToMessageLocation(element)
+          )
         }
         element?.acceptChildren(this)
       }
@@ -81,10 +87,10 @@ internal class MetaClassBuilder(
 
   private fun checkExpressionPurity(descriptor: FunctionDescriptor, expression: KtExpression) {
     val expressionRetType: KotlinType? = expression.getType(bindingContext)
-    if (expressionRetType?.isUnit() == true) {
+    if (expressionRetType?.isUnit() == true || expressionRetType?.isNothingOrNullableNothing() == true) {
       messageCollector.report(
         ERROR,
-        "Impure expression in function ${descriptor.name}: `${expression.text}` returning `Unit` only allowed in `suspend` functions",
+        "Impure expression in function ${descriptor.name}: `${expression.text}` returning `Unit` or `Nothing` only allowed in `suspend` functions",
         MessageUtil.psiElementToMessageLocation(expression)
       )
     }
