@@ -32,18 +32,19 @@ internal object ArrowImportHandler {
     logger.info("Probing for Gradle plugin")
 
     val facetSettings = facet.configuration.settings
-    val commonArguments = facetSettings.compilerArguments
+    val commonArguments = facetSettings.compilerArguments ?: CommonCompilerArguments.DummyImpl() //DummyImpl fails
     val regex = ".*\\${File.separator}?$buildSystemPluginJar-.*\\.jar".toRegex()
 
     // Remove the incompatible compiler plugin from the classpath if found
     var isEnabled = false
-    val oldPluginClasspaths =
-      (commonArguments?.pluginClasspaths ?: emptyArray()).filterTo(mutableListOf()) {
-        val match = regex.matches(it) && validateJar(it)
-        logger.debug("$it [$match]")
-        isEnabled = match
-        !match
+    val oldPluginClasspaths = (commonArguments.pluginClasspaths ?: emptyArray()).filterTo(mutableListOf()) {
+      val match = regex.matches(it) && validateJar(it)
+      logger.debug("$it [$match]")
+      if (match) {
+        isEnabled = true
       }
+      !match
+    }
 
     // Add the compatible compiler plugin version to the classpath if available and is enabled in Gradle
     val newPluginClasspaths = if (isEnabled && PLUGIN_JPS_JAR != null)
@@ -51,7 +52,7 @@ internal object ArrowImportHandler {
     else
       oldPluginClasspaths
 
-    commonArguments?.pluginClasspaths = newPluginClasspaths.toTypedArray()
+    commonArguments.pluginClasspaths = newPluginClasspaths.toTypedArray()
     facetSettings.compilerArguments = commonArguments
   }
 
