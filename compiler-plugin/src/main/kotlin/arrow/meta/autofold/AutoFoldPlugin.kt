@@ -32,7 +32,7 @@ val MetaComponentRegistrar.autoFold: List<ExtensionPhase>
           else
             """
               |$visibility $modality $kind $name<$typeParameters>($valueParameters)${supertypes.identifier.doIf(String::isNotEmpty) { " : $it" }} {
-              |  $body
+              |  ${body.asString().trimMargin()}
               |  inline fun <${typeInfo.doIf(String::isNotEmpty) { "$it, " }}$returnType> ${c.name}${typeInfo.doIf(String::isNotEmpty) { "<$it>" }}.fold(
               |  ${sealedVariants.params(returnType)}
               |  ): $returnType = when(val x = this) {

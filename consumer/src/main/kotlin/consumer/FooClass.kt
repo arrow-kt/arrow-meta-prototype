@@ -40,7 +40,7 @@ sealed class Expr<A> {
 }
 
 data class Const(val number: Double) : Expr<Int>()
-data class Sum<D>(val e1: Expr<Int>, val e2: Expr<Int>) : Expr<Int>() // TODO: add parametertypes to fold
+data class Sum(val e1: Expr<Int>, val e2: Expr<Int>) : Expr<Int>() // TODO: add parametertypes of subtypes to fold
 object NotANumber : Expr<Nothing>()
 /*
 fun functorForOption(): Functor<ForOption> = object : Functor<ForOption> {
