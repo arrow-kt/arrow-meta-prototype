@@ -150,7 +150,7 @@ inline fun <reified K : KtElement> java.util.ArrayList<KtFile>.updateFiles(fileM
       val newSource = file.sourceWithTransformations(mutations)
       val newFile = changeSource(file, newSource)
       replaceFiles(file, newFile)
-      // file.printDiff(newFile)
+      file.printDiff(newFile)
     }
   }
 }

@@ -1,5 +1,6 @@
 package arrow.meta.higherkind
 
+import arrow.meta.autofold.doIf
 import arrow.meta.extensions.ExtensionPhase
 import arrow.meta.extensions.MetaComponentRegistrar
 import arrow.meta.qq.classOrObject
@@ -22,10 +23,10 @@ val MetaComponentRegistrar.higherKindedTypes: List<ExtensionPhase>
           else null,
           /** Class redefinition with kinded super type **/
           """
-              |$modality $visibility $kind $name<$typeParameters>($valueParameters) : ${name}Of<${typeParameters.invariant}> {
+              |$visibility $modality $kind $name<$typeParameters>($valueParameters) : ${supertypes.identifier.doIf(String::isNotEmpty) { "$it, " }}${name}Of<${typeParameters.invariant}> {
               |  $body
               |}
-              |"""
+              """.trimMargin()
         )
       }
     )

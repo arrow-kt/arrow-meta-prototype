@@ -8,6 +8,6 @@ import arrow.meta.higherkind.higherKindedTypes
 class MetaPlugin : MetaComponentRegistrar {
   override fun intercept(): List<ExtensionPhase> =
     higherKindedTypes +
-  autoFold
+      autoFold
   //typeClasses
 }

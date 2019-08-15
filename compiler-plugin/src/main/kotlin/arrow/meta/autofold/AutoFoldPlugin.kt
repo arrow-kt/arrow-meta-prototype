@@ -4,48 +4,43 @@ import arrow.meta.extensions.ExtensionPhase
 import arrow.meta.extensions.MetaComponentRegistrar
 import arrow.meta.higherkind.arity
 import arrow.meta.higherkind.invariant
-import arrow.meta.qq.ClassOrObject
 import arrow.meta.qq.classOrObject
-import org.jetbrains.kotlin.backend.common.onlyIf
-import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtDeclaration
-import org.jetbrains.kotlin.psi.KtNamedDeclaration
 import org.jetbrains.kotlin.psi.psiUtil.findFunctionByName
 import org.jetbrains.kotlin.psi.psiUtil.getSuperNames
-import org.jetbrains.kotlin.psi.psiUtil.isObjectLiteral
-import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 
 val MetaComponentRegistrar.autoFold: List<ExtensionPhase>
   get() =
     meta(
       classOrObject(::isAutoFoldable) { c ->
         println("Processing Sealed class: ${c.name}")
-        val returnType = typeParameters.invariant.last().inc() // TODO: Needs to be extended to whole words
-        val variants = c.sealedSubclasses()
-        val reflVeriants = c.reflectionBasedSealedSubclasses().map { (it as KtNamedDeclaration).nameAsSafeName.asString() }
-        println("${c.name}'s reflectionBased Sealed Classes")
-        println(reflVeriants)
+        val returnType = typeParameters.invariant.last().inc() // TODO: Needs to be extended to whole words for cases where TypeVariables look like this: AP, FF
+        sealedVariants.forEach(::println)
         val typeInfo = Name.identifier(c.renderTypeParameters()).identifier
-        val ss = classDescriptor.findSealedSubclasses()
-        println("new SealedClasses: $ss")
-        if (variants.any { it.typeVariables.split(' ').size > c.arity })
-        // TODO: bail here
-          listOfNotNull("BAILED!!!")
-        else {
-          listOfNotNull(
+        listOfNotNull(
+          if (sealedVariants.any { it.typeVariables.split(',').size > c.arity })
+          // TODO: bail here or tell User this sealed Class can't have a fold function
             """
-            |inline fun <${typeInfo.doIf(String::isNotEmpty) { "$typeInfo, " }}$returnType> ${c.fqName}${typeInfo.doIf(String::isNotEmpty) { "<$it>" }}.fold(
-            |${variants.params(returnType)}
-            |): $returnType = when(this) {
-            |${variants.patternMatch()}
-            |}
-          """.trimMargin()
-          )
-        }
+              |$visibility $modality $kind $name<$typeParameters>($valueParameters)${supertypes.identifier.doIf(String::isNotEmpty) { " : $it" }} {
+              |  $body
+              |}
+            """.trimMargin()
+          else
+            """
+              |$visibility $modality $kind $name<$typeParameters>($valueParameters)${supertypes.identifier.doIf(String::isNotEmpty) { " : $it" }} {
+              |  $body
+              |  inline fun <${typeInfo.doIf(String::isNotEmpty) { "$it, " }}$returnType> ${c.name}${typeInfo.doIf(String::isNotEmpty) { "<$it>" }}.fold(
+              |  ${sealedVariants.params(returnType)}
+              |  ): $returnType = when(val x = this) {
+              |  ${sealedVariants.patternMatch()}
+              |  }
+              |}
+            """.trimMargin()
+        )
       }
     )
 
@@ -59,29 +54,12 @@ private fun isAutoFoldable(ktClass: KtClass): Boolean =
 
 data class SealedSubclass(val simpleName: Name, val fqName: FqName?, val typeVariables: String) // add typeVariable with <>
 
-/*
- AFAIk there are 2 ways to get all sealedSubclasses:
- - get the ClassDescriptor thorough the compilerContext and check it's property for [findSealedSubclasses]
- - directly get the ClassDescriptor through reflection... in most instances [::reflectionBasedSealedSubclasses]
- */
-fun KtClass.sealedSubclasses(): List<SealedSubclass> {
-  val s = reflectionBasedSealedSubclasses()
-  println(s)
-  return innerSealedSubclasses()
-}
+fun KtClass.sealedSubclasses(): List<SealedSubclass> =
+  innerSealedSubclasses() + outerSealedSubclasses()
 
-fun KtClass.reflectionBasedSealedSubclasses(): List<KtDeclaration> {
-  val b = this::class.sealedSubclasses
-    .map { it as KtDeclaration }
-  println(b.map { it as KtNamedDeclaration }.map { it.nameAsSafeName.asString() })
-  val c = b.map { (it as KtClassOrObject).getSuperNames() }
-  println(c)
-  return b.filter { it is KtClassOrObject && it.getSuperNames().contains<String>((this as KtNamedDeclaration).nameAsSafeName.toString()) }
-}
-
-fun KtClass.innerSealedSubclasses(): List<SealedSubclass> =
-  declarations.filter {
-    (it is KtClassOrObject) && it.getSuperNames().contains(this.nameAsSafeName.identifier)
+fun List<KtDeclaration>.sealedVariants(superKt: KtClass): List<SealedSubclass> =
+  filter {
+    (it is KtClassOrObject) && it.getSuperNames().contains(superKt.nameAsSafeName.identifier)
   }.map { it as KtClassOrObject }.map {
     SealedSubclass(
       simpleName = it.nameAsSafeName,
@@ -90,13 +68,11 @@ fun KtClass.innerSealedSubclasses(): List<SealedSubclass> =
     )
   }
 
-fun ClassDescriptor?.findSealedSubclasses()/*:  List<SealedSubclass> */ =
-  if (this != null) {
-    println(sealedSubclasses.size)
-    sealedSubclasses.forEach { println("classDesc: ${it.typeConstructor}") }
-    sealedSubclasses.map { SealedSubclass(it.name, it.fqNameSafe, if (it is KtClass) it.renderTypeParameters() else "") }
-  } else emptyList()
+fun KtClass.innerSealedSubclasses(): List<SealedSubclass> =
+  declarations.sealedVariants(this)
 
+fun KtClass.outerSealedSubclasses(): List<SealedSubclass> =
+  containingKtFile.declarations.sealedVariants(this)
 
 private fun KtClass.renderTypeParameters(): String =
   Name.identifier(typeParameters.joinToString(separator = ", ") { it.text }).invariant
@@ -107,20 +83,10 @@ inline fun <T> T.doIf(cond: T.() -> Boolean, doIt: (T) -> T): T =
 
 private fun List<SealedSubclass>.patternMatch(): String = // works
   joinToString(
-    transform = { "  is ${it.fqName} -> ${it.simpleName.identifier.decapitalize()}(this)" },
-    separator = "\n")
+    transform = { "  is ${it.simpleName.identifier} -> ${it.simpleName.identifier.decapitalize()}(x)" },
+    separator = "\n  ")
 
 private fun List<SealedSubclass>.params(returns: Char): String =
   joinToString(
-    transform = { "  crossinline ${it.simpleName.identifier.decapitalize()}: (${it.fqName}${it.typeVariables.doIf(String::isNotEmpty) { "<$it>" }}) -> $returns" }
-    , separator = ",\n")
-/*
-inline fun <A, B> `higherkinds`.`Expr`<A>.fold(
-  crossinline const: (`higherkinds`.`Const`) -> B,
-  crossinline sum: (`higherkinds`.`Sum`<A>) -> B,
-  crossinline notANumber: (`higherkinds`.`NotANumber`) -> B
-): B = when (this) {
-  is `higherkinds`.`Const` -> `const`(this)
-  is `higherkinds`.`Sum` -> `sum`(this)
-  is `higherkinds`.`NotANumber` -> `notANumber`(this)
-}*/
+    transform = { "  crossinline ${it.simpleName.identifier.decapitalize()}: (${it.simpleName.identifier}${it.typeVariables.doIf(String::isNotEmpty) { "<$it>" }}) -> $returns" }
+    , separator = ",\n  ")

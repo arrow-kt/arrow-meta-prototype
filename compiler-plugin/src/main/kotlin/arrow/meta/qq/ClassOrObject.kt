@@ -2,8 +2,6 @@ package arrow.meta.qq
 
 import arrow.meta.autofold.SealedSubclass
 import arrow.meta.autofold.sealedSubclasses
-import org.jetbrains.kotlin.descriptors.ClassDescriptor
-import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtClassOrObject
@@ -11,7 +9,6 @@ import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtNamedDeclaration
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
-import org.jetbrains.kotlin.psi.psiUtil.findFunctionByName
 import org.jetbrains.kotlin.psi.psiUtil.getValueParameters
 import org.jetbrains.kotlin.psi.psiUtil.modalityModifierType
 import org.jetbrains.kotlin.psi.psiUtil.visibilityModifierType
@@ -30,8 +27,7 @@ interface ClassOrObject : Quote<KtElement, KtClass, ClassOrObject.ClassScope> {
     val body: Name,
     val functions: List<Name>,
     val valueParameterNames: List<Name>,
-    val properties: List<Name>,
-    val classDescriptor: ClassDescriptor?
+    val properties: List<Name>
   )
 
   override fun transform(ktElement: KtClass): ClassScope =
@@ -48,8 +44,7 @@ interface ClassOrObject : Quote<KtElement, KtClass, ClassOrObject.ClassScope> {
       functions = ktElement.renderFunctions().map { it.nameAsSafeName },
       properties = ktElement.renderProperties().map { it.nameAsSafeName },
       valueParameterNames = ktElement.renderPrimaryParameters().map { it.nameAsSafeName },
-      sealedVariants = ktElement.sealedSubclasses(),
-      classDescriptor = ktElement.classDescriptor(ktElement.fqName.toString())
+      sealedVariants = ktElement.sealedSubclasses()
     )
 
 
@@ -58,12 +53,6 @@ interface ClassOrObject : Quote<KtElement, KtClass, ClassOrObject.ClassScope> {
       if (isInterface()) it.replace("interface (.*?)\\(\\)".toRegex(), "interface $1")
       else it
     }
-/*
-*  .filter { it in quasiQuoteContext.compilerContext.storedDescriptors() }*/
-  /*containingKtFile.declarations
-    .filter { it is KtClassOrObject && (it as KtClass).renderSuperTypes().contains((this as KtNamedDeclaration).nameAsSafeName.toString()) }
-    .map { it as KtNamedDeclaration }*/
-  // (this as KtClass).run { this::class.sealedSubclasses.filter { (it as KtClassOrObject).superTypeListEntries.contains(this@ClassOrObject as KtSuperTypeListEntry) } }
 
   override fun parse(template: String): KtClass =
     quasiQuoteContext.compilerContext.ktPsiElementFactory.createClass(template)
@@ -73,13 +62,10 @@ interface ClassOrObject : Quote<KtElement, KtClass, ClassOrObject.ClassScope> {
     else getValueParameters().joinToString(separator = ", ") { it.text }
 
   fun KtClass.renderSuperTypes(): String =
-    superTypeListEntries.joinToString(", ") { it.name.orEmpty() }
+    superTypeListEntries.map { it.text }.joinToString(", ")
 
   fun KtClass.renderTypeParametersWithVariance(): String =
     typeParameters.joinToString(separator = ", ") { it.text }
-
-  fun KtClass.hasFunction(f: String): Boolean =
-    findFunctionByName(f) != null
 
   fun KtClassOrObject.renderFunctions(): List<KtNamedDeclaration> =
     declarations.filterIsInstance<KtNamedFunction>()
@@ -90,13 +76,6 @@ interface ClassOrObject : Quote<KtElement, KtClass, ClassOrObject.ClassScope> {
   fun KtClassOrObject.renderPrimaryParameters(): List<KtNamedDeclaration> =
     primaryConstructorParameters.filter { it.hasValOrVar() }.fold(emptyList())
     { acc, ktParameter -> acc + (ktParameter as KtNamedDeclaration) }
-
-  fun KtClass.classDescriptor(fqName: String): ClassDescriptor? {
-    val fq = FqName(fqName)
-    val r = quasiQuoteContext.compilerContext
-    val d = r.getStoredDescriptor(fq) // empty
-    return d
-  }
 
   companion object : Quote.Factory<KtElement, KtClass, ClassScope> {
     override operator fun invoke(
