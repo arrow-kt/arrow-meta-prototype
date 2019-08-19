@@ -76,7 +76,8 @@ internal class MetaClassBuilder(
         } else if (element is KtThrowExpression) {
           messageCollector.report(
             ERROR,
-            "Impure expression in function ${descriptor.name}: `${element.text}` returning `Nothing` due to `throw` expression only allowed in `suspend` functions\nGenerally, it is recommended NOT to `throw` Exception and instead to ",
+            "Impure expression in function ${descriptor.name}: `${element.text}` returning `Nothing` due to `throw` expression only allowed in `suspend` functions.\n" +
+              "Generally, it is not recommended to `throw` Exceptions and instead to represent exceptional cases with datatypes and typeclasses as described https://next.arrow-kt.io/docs/patterns/error_handling/",
             MessageUtil.psiElementToMessageLocation(element)
           )
         }
