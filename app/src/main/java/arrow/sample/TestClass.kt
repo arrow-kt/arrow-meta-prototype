@@ -8,6 +8,17 @@ class TestClass {
     println("other")
   }
 
+  var d: () -> Int = {
+    if (true)
+      throw RuntimeException("Damn")
+    3
+  }
+
+  fun s(): String {
+    d = { d() - 2 }
+    return "p"
+  }
+
   val x = { println() }
 
   fun another2(): String {
