@@ -85,7 +85,7 @@ interface ClassOrObject : Quote<KtElement, KtClass, ClassOrObject.ClassScope> {
       map: ClassScope.(quotedTemplate: KtClass) -> List<String>
     ): ClassOrObject =
       object : ClassOrObject {
-        override val quasiQuoteContext: QuasiQuoteContext = quasiQuoteContext // needs to have more info
+        override val quasiQuoteContext: QuasiQuoteContext = quasiQuoteContext
         override fun KtClass.match(): Boolean = match(this)
         override fun ClassScope.map(quotedTemplate: KtClass): List<String> = map(quotedTemplate)
         override val containingDeclaration: KtElement = containingDeclaration
