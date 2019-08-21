@@ -125,9 +125,9 @@ inline fun <reified K : KtElement, P : KtElement, S> CompilerContext.processFile
     if (mutatingDocument != null) {
       file.accept(object : MetaTreeVisitor(this) {
         override fun visitKtElement(element: KtElement, data: Unit?): Unit? {
-          println("visitKtElement: ${element.javaClass}")
+          // println("visitKtElement: ${element.javaClass}")
           if (element.javaClass == K::class.java) {
-            println("found element: ${element.javaClass}")
+            // println("found element: ${element.javaClass}")
             val transformation = quoteFactory(
               quasiQuoteContext = QuasiQuoteContext(compilerContext),
               containingDeclaration = element.psiOrParent as P,
