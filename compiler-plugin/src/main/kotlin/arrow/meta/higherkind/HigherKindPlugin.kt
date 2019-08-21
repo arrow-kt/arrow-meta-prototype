@@ -23,6 +23,7 @@ val MetaComponentRegistrar.higherKindedTypes: List<ExtensionPhase>
           else null,
           /** Class redefinition with kinded super type **/
           """
+              |@Suppress("INCONSISTENT_TYPE_PARAMETER_VALUES")
               |$visibility $modality $kind $name<$typeParameters>($valueParameters) : ${supertypes.identifier.doIf(String::isNotEmpty) { "$it, " }}${name}Of<${typeParameters.invariant}> {
               |  $body
               |}

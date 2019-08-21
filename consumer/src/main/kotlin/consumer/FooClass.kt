@@ -9,7 +9,7 @@ sealed class Option<out A> {
   object None : Option<Nothing>()
   data class Some<out A>(val value: A) : Option<A>()
 
-  fun <B> map(f: (A) -> B): Option<B> =
+  /*fun <B> map(f: (A) -> B): Option<B> =
     when (this) {
       None -> None
       is Some -> Some(f(value))
@@ -19,7 +19,7 @@ sealed class Option<out A> {
     when (this) {
       None -> None
       is Some -> f(value)
-    }
+    }*/
 }
 
 sealed class Either<out A, out B> {
@@ -41,13 +41,14 @@ data class Const(val number: Double) : Expr<Int, Int>()
 data class Sum<C>(val e1: Expr<Int, C>, val e2: Expr<Int, C>) : Expr<Int, C>()
 object NotANumber : Expr<Nothing, Nothing>()
 
-fun <F> Kind<F, Int>.addOne(FF: Functor<F> = `*`): Kind<F, Int> =
-  map { it + 1 }
+/*fun <F> Kind<F, Int>.addOne(FF: Functor<F> = `*`): Kind<F, Int> =
+  map { it + 1 }*/
 //
 //class Service {
 //  fun <F> Kind<F, Int>.addOne(FF: Functor<F> = `*`): Kind<F, Int> =
 //    map { it + 1 }
 //} TODO support nested functions that are not top level in injections through arrow meta
 
+/*
 fun testConversion(): Any =
-  Option.Some(1).addOne()
+  Option.Some(1).addOne()*/
