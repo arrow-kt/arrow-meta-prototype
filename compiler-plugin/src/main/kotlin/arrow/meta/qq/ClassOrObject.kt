@@ -2,6 +2,7 @@ package arrow.meta.qq
 
 import arrow.meta.utils.SealedSubclass
 import arrow.meta.utils.sealedSubclasses
+import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtClassOrObject
@@ -25,6 +26,7 @@ interface ClassOrObject : Quote<KtElement, KtClass, ClassOrObject.ClassScope> {
     val supertypes: Name,
     val sealedVariants: List<SealedSubclass>,
     val body: Name,
+    val messageCollector: MessageCollector,
     val functions: List<Name>,
     val valueParameterNames: List<Name>,
     val properties: List<Name>
@@ -44,7 +46,8 @@ interface ClassOrObject : Quote<KtElement, KtClass, ClassOrObject.ClassScope> {
       functions = ktElement.renderFunctions().map { it.nameAsSafeName },
       properties = ktElement.renderProperties().map { it.nameAsSafeName },
       valueParameterNames = ktElement.renderPrimaryParameters().map { it.nameAsSafeName },
-      sealedVariants = ktElement.sealedSubclasses()
+      sealedVariants = ktElement.sealedSubclasses(),
+      messageCollector = messageCollector()
     )
 
   override fun KtClass.cleanUserQuote(quoteDeclaration: String): String =
@@ -59,6 +62,9 @@ interface ClassOrObject : Quote<KtElement, KtClass, ClassOrObject.ClassScope> {
   fun KtClass.renderValueParameters(): String =
     if (getValueParameters().isEmpty()) ""
     else getValueParameters().joinToString(separator = ", ") { it.text }
+
+  fun messageCollector() =
+    quasiQuoteContext.compilerContext.messageCollector
 
   fun KtClass.renderSuperTypes(): String =
     superTypeListEntries.map { it.text }.joinToString(", ")
