@@ -1,11 +1,11 @@
 package arrow.meta.higherkind
 
-import arrow.meta.autofold.doIf
 import arrow.meta.extensions.ExtensionPhase
 import arrow.meta.extensions.MetaComponentRegistrar
 import arrow.meta.qq.classOrObject
-import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.name.Name
+import arrow.meta.utils.arity
+import arrow.meta.utils.invariant
+import arrow.meta.utils.isKinded
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtFile
 
@@ -26,18 +26,13 @@ val MetaComponentRegistrar.higherKindedTypes: List<ExtensionPhase>
           /** Class redefinition with kinded super type **/
           """
               |@Suppress("INCONSISTENT_TYPE_PARAMETER_VALUES")
-              |$visibility $modality $kind $name<$typeParameters>($valueParameters) : ${supertypes.identifier.doIf(String::isNotEmpty) { "$it, " }}${name}Of<${typeParameters.invariant}> {
+              |$visibility $modality $kind $name<$typeParameters>($valueParameters) : ${if ((String::isNotEmpty)(supertypes.identifier)) ({ it: String -> "$it, " })(supertypes.identifier) else supertypes.identifier}${name}Of<${typeParameters.invariant}> {
               |  $body
               |}
               """.trimMargin()
         )
       }
     )
-
-val Name.invariant: String
-  get() = identifier
-    .replace("out ", "")
-    .replace("in ", "")
 
 private val KtClass.partialTypeParameters: String
   get() = typeParameters
@@ -46,26 +41,14 @@ private val KtClass.partialTypeParameters: String
       it.nameAsSafeName.identifier
     }
 
-val KtClass.arity: Int
-  get() = typeParameters.size
-
 private val KtClass.kindAritySuffix: String
   get() = arity.let { if (it > 1) "$it" else "" }
 
 private val KtClass.partialKindAritySuffix: String
   get() = (arity - 1).let { if (it > 1) "$it" else "" }
 
-fun isHigherKindedType(ktClass: KtClass): Boolean =
-  ktClass.fqName?.asString()?.startsWith("arrow.Kind") != true &&
-    !ktClass.isAnnotation() &&
+private fun isHigherKindedType(ktClass: KtClass): Boolean =
+  ktClass.isKinded() && !ktClass.isAnnotation() &&
     ktClass.typeParameters.isNotEmpty() &&
     ktClass.parent is KtFile
 
-val kindName: FqName = FqName("arrow.Kind")
-
-val FqName.kindTypeAliasName: Name
-  get() {
-    val segments = pathSegments()
-    val simpleName = segments.last()
-    return Name.identifier("${simpleName}Of")
-  }
