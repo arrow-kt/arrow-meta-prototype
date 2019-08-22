@@ -1,5 +1,7 @@
 package arrow.meta.qq
 
+import arrow.meta.kt.renderTypeParametersWithVariance
+import arrow.meta.kt.renderValueParameters
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtElement
@@ -9,13 +11,15 @@ import org.jetbrains.kotlin.psi.psiUtil.getValueParameters
 import org.jetbrains.kotlin.psi.psiUtil.modalityModifierType
 import org.jetbrains.kotlin.psi.psiUtil.visibilityModifierType
 
+internal val EmptyElement: Name = Name.identifier("_EMPTY_ELEMENT_")
+
 interface Func : Quote<KtElement, KtNamedFunction, Func.FuncScope> {
 
   class FuncScope(
     val modality: Name,
     val visibility: Name,
     val typeParameters: Name,
-    val receiver: Name?,
+    val receiver: Name,
     val name: Name,
     val valueParameters: Name,
     val returnType: Name,
@@ -24,25 +28,25 @@ interface Func : Quote<KtElement, KtNamedFunction, Func.FuncScope> {
 
   override fun transform(ktElement: KtNamedFunction): FuncScope =
     FuncScope(
-      modality = Name.identifier(ktElement.modalityModifierType()?.value.orEmpty()),
-      visibility = Name.identifier(ktElement.visibilityModifierType()?.value.orEmpty()),
-      name = Name.identifier(ktElement.nameAsSafeName.identifier),
-      typeParameters = Name.identifier(ktElement.renderTypeParametersWithVariance()),
-      receiver = ktElement.receiverTypeReference?.text?.let(Name::identifier),
-      valueParameters = Name.identifier(ktElement.renderValueParameters()),
-      returnType = Name.identifier(ktElement.typeReference?.text.orEmpty()),
-      body = Name.identifier(ktElement.bodyExpression?.text ?: ktElement.bodyBlockExpression?.text?.drop(1)?.dropLast(1) ?: "")
+      modality = ktElement.modalityModifierType()?.value?.let(Name::identifier) ?: EmptyElement,
+      visibility = ktElement.visibilityModifierType()?.value?.let(Name::identifier) ?: EmptyElement,
+      name = ktElement.nameAsName ?: EmptyElement,
+      typeParameters = ktElement.renderTypeParametersWithVariance()?.let(Name::identifier) ?: EmptyElement,
+      receiver = ktElement.receiverTypeReference?.text?.let(Name::identifier) ?: EmptyElement,
+      valueParameters = ktElement.renderValueParameters()?.let(Name::identifier) ?: EmptyElement,
+      returnType = ktElement.typeReference?.text?.let(Name::identifier) ?: EmptyElement,
+      body = (ktElement.bodyExpression?.text
+        ?: ktElement.bodyBlockExpression?.text?.drop(1)?.dropLast(1)
+        )?.let(Name::identifier) ?: EmptyElement
     )
 
-  fun KtNamedFunction.renderTypeParametersWithVariance(): String =
-    typeParameters.joinToString(separator = ", ") { it.text }
-
-  fun KtNamedFunction.renderValueParameters(): String =
-    if (valueParameters.isEmpty()) ""
-    else valueParameters.joinToString(separator = ", ") { it.text }
-
   override fun KtNamedFunction.cleanUserQuote(quoteDeclaration: String): String =
-    quoteDeclaration.trimMargin()
+    quoteDeclaration.trimMargin().removeEmptyTypeArgs()
+
+  private fun String.removeEmptyTypeArgs(): String =
+    replace("<$EmptyElement>", "")
+      .replace("$EmptyElement.", "")
+      .replace("$EmptyElement", "")
 
   override fun parse(template: String): KtNamedFunction =
     quasiQuoteContext.compilerContext.ktPsiElementFactory.createFunction(template)
@@ -63,3 +67,4 @@ interface Func : Quote<KtElement, KtNamedFunction, Func.FuncScope> {
   }
 
 }
+
