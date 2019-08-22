@@ -32,7 +32,7 @@ internal object ArrowImportHandler {
     logger.info("Probing for Gradle plugin")
 
     val facetSettings = facet.configuration.settings
-    val commonArguments = facetSettings.compilerArguments ?: CommonCompilerArguments.DummyImpl() //DummyImpl fails
+    val commonArguments = facetSettings.compilerArguments ?: CommonCompilerArguments.DummyImpl()
     val regex = ".*\\${File.separator}?$buildSystemPluginJar-.*\\.jar".toRegex()
 
     // Remove the incompatible compiler plugin from the classpath if found
