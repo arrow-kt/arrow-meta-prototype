@@ -34,7 +34,7 @@ class ArrowGradlePlugin : Plugin<Project> {
 class ArrowKotlinGradleSubplugin : KotlinGradleSubplugin<AbstractCompile> {
   companion object {
     private const val GENERATED_ARTIFACT_NAME = "gradle-plugin"
-    private const val GENERATED_GROUP_ID = "io.arrow-kt"
+    private const val GENERATED_GROUP_ID = "arrow.meta.plugin.compiler"
     private const val GENERATED_VERSION = "0.0.1"
     private const val GENERATED_COMPILER_PLUGIN_ID = "arrow.meta.plugin.compiler"
     private const val PURE_CHECK_ARG_NAME = "pureCheck"

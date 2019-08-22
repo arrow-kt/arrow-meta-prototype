@@ -32,6 +32,7 @@ jar {
 shadowJar {
   configurations = []
   classifier = "embeddable"
+  relocate("com.intellij", "org.jetbrains.kotlin.com.intellij") // check https://github.com/fabianishere/kotlin-plugin-generated/issues/4
 }
 
 // Create embeddable configuration
