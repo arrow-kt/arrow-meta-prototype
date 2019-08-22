@@ -13,6 +13,7 @@ dependencies {
   compile gradleApi()
   compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
   compile "org.jetbrains.kotlin:kotlin-gradle-plugin-api:$kotlin_version"
+  compile "org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlin_version"
   compileOnly project(":compiler-plugin") { "embeddable" }
 }
 
