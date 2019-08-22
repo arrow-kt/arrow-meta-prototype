@@ -10,8 +10,11 @@ import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtDeclaration
+import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.psiUtil.findFunctionByName
 import org.jetbrains.kotlin.psi.psiUtil.getSuperNames
+import org.jetbrains.kotlin.utils.addToStdlib.safeAs
+
 
 val MetaComponentRegistrar.autoFold: List<ExtensionPhase>
   get() =
@@ -26,12 +29,7 @@ val MetaComponentRegistrar.autoFold: List<ExtensionPhase>
         println(returnType)
         listOfNotNull(
           if (sealedVariants.any { it.typeVariables.split(',').size > c.arity })
-          // TODO: bail here or tell User this sealed Class can't have a fold function
-            """
-              |$visibility $modality $kind $name<$typeParameters>($valueParameters)${supertypes.identifier.doIf(String::isNotEmpty) { " : $it" }} {
-              |  $body
-              |}
-            """.trimMargin()
+            c.text
           else
             """
               |$visibility $modality $kind $name<$typeParameters>($valueParameters)${supertypes.identifier.doIf(String::isNotEmpty) { " : $it" }} {
@@ -49,12 +47,15 @@ val MetaComponentRegistrar.autoFold: List<ExtensionPhase>
     )
 
 private fun KtClass.hasFoldFunction(): Boolean =
-  findFunctionByName("fold") != null
+  findFunctionByName("fold").safeAs<KtNamedFunction>()?.typeParameters?.size == 1
 
 private fun isAutoFoldable(ktClass: KtClass): Boolean =
   ktClass.isSealed() && !ktClass.isAnnotation() &&
-    ktClass.fqName?.asString()?.startsWith("arrow.Kind") != true &&
+    ktClass.isKinded() &&
     !ktClass.hasFoldFunction() && ktClass.sealedSubclasses().isNotEmpty()
+
+private fun KtClass.isKinded() =
+  fqName?.asString()?.startsWith("arrow.Kind") != true
 
 data class SealedSubclass(val simpleName: Name, val fqName: FqName?, val typeVariables: String) // add typeVariable with <>
 

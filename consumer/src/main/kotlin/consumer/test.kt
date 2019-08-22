@@ -12,5 +12,6 @@ object test {
     println(Comprehensions.chainedBinds())
     println(Comprehensions.simpleBind())
     //println(Comprehensions.existentFlatMap())
+    //TODO add test for fold
   }
 }
