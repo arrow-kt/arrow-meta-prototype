@@ -62,7 +62,7 @@ Given a mock project we can list the extensions that are available to be registe
 Extensions.getArea(project).extensionPoints.toList().joinToString("\n")
 ```
 ```
-org.jetbrains.kotlin.com.intellij.psi.treeChangePreprocessor
+com.intellij.psi.treeChangePreprocessor
 org.jetbrains.kotlin.classBuilderFactoryInterceptorExtension
 org.jetbrains.kotlin.storageComponentContainerContributor
 org.jetbrains.kotlin.syntheticResolveExtension
@@ -70,13 +70,13 @@ org.jetbrains.kotlin.expressionCodegenExtension
 org.jetbrains.kotlin.irGenerationExtension
 org.jetbrains.kotlin.jsSyntheticTranslateExtension
 org.jetbrains.kotlin.compilerConfigurationExtension
-org.jetbrains.kotlin.com.intellij.openapi.extensions.epAvailabilityListener
+com.intellij.openapi.extensions.epAvailabilityListener
 org.jetbrains.kotlin.analyzeCompleteHandlerExtension
 org.jetbrains.kotlin.declarationAttributeAltererExtension
 org.jetbrains.kotlin.packageFragmentProviderExtension
-org.jetbrains.kotlin.com.intellij.jvm.elementProvider
+com.intellij.jvm.elementProvider
 org.jetbrains.kotlin.preprocessedVirtualFileFactoryExtension
-org.jetbrains.kotlin.com.intellij.java.elementFinder
+com.intellij.java.elementFinder
 ```
 
 ## Projects
