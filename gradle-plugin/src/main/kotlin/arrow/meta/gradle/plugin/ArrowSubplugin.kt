@@ -1,4 +1,4 @@
-package arrow.meta.plugin.gradle
+package arrow.meta.gradle.plugin
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project

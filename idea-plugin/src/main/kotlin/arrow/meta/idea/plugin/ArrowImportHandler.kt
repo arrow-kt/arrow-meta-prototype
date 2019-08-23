@@ -1,4 +1,4 @@
-package arrow.meta.plugin.idea
+package arrow.meta.idea.plugin
 
 import arrow.meta.MetaCliProcessor
 import com.intellij.openapi.application.PathManager

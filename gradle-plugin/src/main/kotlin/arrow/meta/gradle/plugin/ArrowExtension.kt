@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package arrow.meta.plugin.gradle
+package arrow.meta.gradle.plugin
 
 /**
  * The available Gradle configuration for this plugin.

@@ -1,5 +1,5 @@
 <idea-plugin>
-<id>arrow.meta.compiler.plugin</id>
+<id>arrow.meta.idea.plugin</id>
 <name>Arrow</name>
 
 <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
@@ -16,7 +16,7 @@
 <depends>org.jetbrains.kotlin</depends>
 
 <extensions defaultExtensionNs="org.jetbrains.kotlin">
-    <gradleProjectImportHandler implementation="arrow.meta.plugin.idea.ArrowGradleImportHandler" />
+    <gradleProjectImportHandler implementation="arrow.meta.idea.plugin.ArrowGradleImportHandler" />
 </extensions>
 
 </idea-plugin>

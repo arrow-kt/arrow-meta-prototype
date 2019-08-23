@@ -1,5 +1,4 @@
-
-package arrow.meta.plugin.idea
+package arrow.meta.idea.plugin
 
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ModuleData
