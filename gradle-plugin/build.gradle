@@ -36,7 +36,7 @@ jar {
 gradlePlugin {
   plugins {
     arrow {
-      id = "arrow.meta.plugin.compiler"
+      id = "arrow.meta.compiler.plugin"
       implementationClass = "arrow.meta.plugin.gradle.ArrowGradlePlugin"
     }
   }
@@ -50,12 +50,12 @@ pluginBundle {
 
   plugins {
     arrow {
-      id = "arrow.meta.plugin.compiler"
+      id = "arrow.meta.compiler.plugin"
       displayName = "Arrow compiler plugin"
     }
   }
 
   mavenCoordinates {
-    groupId = "arrow.meta.plugin.compiler"
+    groupId = "arrow.meta.compiler.plugin"
   }
 }

@@ -1,9 +1,8 @@
 package arrow.meta.utils
 
 import arrow.meta.extensions.CompilerContext
-import arrow.meta.kt.renderTypeParametersWithVariance
 import org.jetbrains.kotlin.backend.common.BackendContext
-import org.jetbrains.kotlin.backend.common.lower.SimpleMemberScope
+import org.jetbrains.kotlin.backend.common.SimpleMemberScope
 import org.jetbrains.kotlin.descriptors.ClassConstructorDescriptor
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassKind
@@ -70,8 +69,6 @@ import org.jetbrains.kotlin.types.TypeProjection
 import org.jetbrains.kotlin.types.TypeProjectionImpl
 import org.jetbrains.kotlin.types.Variance
 import org.jetbrains.kotlin.types.typeUtil.isInterface
-import java.lang.reflect.Field
-import java.lang.reflect.Modifier
 
 
 val kindName: FqName = FqName("arrow.Kind")

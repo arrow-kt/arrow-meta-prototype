@@ -67,7 +67,7 @@ internal object ArrowImportHandler {
       val jar = JarInputStream(FileInputStream(path))
       val manifest = jar.manifest
       manifest.mainAttributes.getValue("Implementation-Title")
-        .startsWith("arrow.meta.plugin.compiler")
+        .startsWith("arrow.meta.compiler.plugin")
     } catch (_: Exception) {
       false
     }

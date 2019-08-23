@@ -1,5 +1,5 @@
 <idea-plugin>
-<id>arrow.meta.plugin.compiler</id>
+<id>arrow.meta.compiler.plugin</id>
 <name>Arrow</name>
 
 <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
