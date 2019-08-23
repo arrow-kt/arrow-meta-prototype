@@ -9,6 +9,7 @@ import arrow.meta.utils.isKinded
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtFile
 
+
 val MetaComponentRegistrar.higherKindedTypes: List<ExtensionPhase>
   get() =
     meta(
