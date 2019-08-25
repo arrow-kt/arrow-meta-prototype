@@ -12,5 +12,8 @@ object test {
     println(Comprehensions.chainedBinds())
     println(Comprehensions.simpleBind())
     //println(Comprehensions.existentFlatMap())
+
+    // println(Autofold.syntheticAFold())
+    // println(Autofold.syntheticExprFold())
   }
 }

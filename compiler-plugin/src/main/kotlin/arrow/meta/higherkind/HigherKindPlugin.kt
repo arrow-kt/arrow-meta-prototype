@@ -8,7 +8,6 @@ import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtFile
 
-
 val MetaComponentRegistrar.higherKindedTypes: List<ExtensionPhase>
   get() =
     meta(
@@ -25,15 +24,16 @@ val MetaComponentRegistrar.higherKindedTypes: List<ExtensionPhase>
           else null,
           /** Class redefinition with kinded super type **/
           """
-              |$modality $visibility $kind $name<$typeParameters>($valueParameters) : ${name}Of<${typeParameters.invariant}> {
+              |@Suppress("INCONSISTENT_TYPE_PARAMETER_VALUES")
+              |$visibility $modality $kind $name<$typeParameters>($valueParameters) : ${if ((String::isNotEmpty)(supertypes.identifier)) ({ it: String -> "$it, " })(supertypes.identifier) else supertypes.identifier}${name}Of<${typeParameters.invariant}> {
               |  $body
               |}
-              |"""
+              """.trimMargin()
         )
       }
     )
 
-private val Name.invariant: String
+val Name.invariant: String
   get() = identifier
     .replace("out ", "")
     .replace("in ", "")
@@ -45,7 +45,7 @@ private val KtClass.partialTypeParameters: String
       it.nameAsSafeName.identifier
     }
 
-private val KtClass.arity: Int
+val KtClass.arity: Int
   get() = typeParameters.size
 
 private val KtClass.kindAritySuffix: String
@@ -54,9 +54,11 @@ private val KtClass.kindAritySuffix: String
 private val KtClass.partialKindAritySuffix: String
   get() = (arity - 1).let { if (it > 1) "$it" else "" }
 
+fun KtClass.isKinded() =
+  fqName?.asString()?.startsWith("arrow.Kind") != true
+
 fun isHigherKindedType(ktClass: KtClass): Boolean =
-  ktClass.fqName?.asString()?.startsWith("arrow.Kind") != true &&
-    !ktClass.isAnnotation() &&
+  ktClass.isKinded() && !ktClass.isAnnotation() &&
     ktClass.typeParameters.isNotEmpty() &&
     ktClass.parent is KtFile
 
