@@ -52,5 +52,5 @@ class ArrowKotlinGradleSubplugin : KotlinGradleSubplugin<AbstractCompile> {
     override fun getPluginArtifact(): SubpluginArtifact =
         SubpluginArtifact(GENERATED_GROUP_ID, GENERATED_ARTIFACT_NAME, GENERATED_VERSION)
 
-    override fun getCompilerPluginId() = GENERATED_COMPILER_PLUGIN_ID.also { println("gradle plugin is invoked for $it") }
+    override fun getCompilerPluginId() = GENERATED_COMPILER_PLUGIN_ID
 }
