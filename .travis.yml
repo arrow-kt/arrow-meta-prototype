@@ -1,0 +1,19 @@
+language: kotlin
+sudo: required
+dist: trusty
+
+jdk:
+  - oraclejdk8
+
+stages:
+  - name: build
+
+env:
+  global:
+    - JAVA_OPTS="-Xms512m -Xmx1024m"
+
+jobs:
+  include:
+    - stage: build
+      script:
+        - ./gradlew clean consumer:execute -Dorg.gradle.debug=true -Dkotlin.compiler.execution.strategy="in-process"
