@@ -6,7 +6,7 @@ import org.jetbrains.kotlin.compiler.plugin.CommandLineProcessor
 //@AutoService(CommandLineProcessor::class)
 class MetaCliProcessor : CommandLineProcessor {
 
-  override val pluginId: String = "arrow.meta.plugin.compiler".also { println("Compiler plugin added") }
+  override val pluginId: String = "arrow.meta.plugin.compiler"
 
   override val pluginOptions: Collection<CliOption> = emptyList()
 
