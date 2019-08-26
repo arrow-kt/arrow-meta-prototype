@@ -71,6 +71,6 @@ private fun List<SealedSubclass>.params(returns: String): String =
 private fun MessageCollector.cantCreateAutoFold(sealedClass: KtClass): Unit =
   report(
     CompilerMessageSeverity.INFO,
-    "AutoFold can not be created for $sealedClass",
+    "AutoFold can not be created, because $sealedClass contains less generic information than it's variant",
     CompilerMessageLocation.create(null)
   )
