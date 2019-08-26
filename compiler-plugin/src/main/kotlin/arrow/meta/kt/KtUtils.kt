@@ -22,7 +22,7 @@ fun KtClass.renderValueParameters(): String =
   else getValueParameters().joinToString(separator = ", ") { it.text }
 
 fun KtClass.renderSuperTypes(): String =
-  superTypeListEntries.joinToString(", ") { it.name.orEmpty() }
+  superTypeListEntries.joinToString(", ") { it.text }
 
 fun KtClass.renderTypeParametersWithVariance(): String =
   typeParameters.joinToString(separator = ", ") { it.text }
@@ -87,10 +87,10 @@ fun List<KtDeclaration>.sealedVariants(superKt: KtClass): List<SealedSubclass> =
     )
   }
 
-fun KtClass.innerSealedSubclasses(): List<SealedSubclass> =
+private fun KtClass.innerSealedSubclasses(): List<SealedSubclass> =
   declarations.sealedVariants(this)
 
-fun KtClass.outerSealedSubclasses(): List<SealedSubclass> =
+private fun KtClass.outerSealedSubclasses(): List<SealedSubclass> =
   containingKtFile.declarations.sealedVariants(this)
 
 val KtClass.renderTypeParameters: List<String>

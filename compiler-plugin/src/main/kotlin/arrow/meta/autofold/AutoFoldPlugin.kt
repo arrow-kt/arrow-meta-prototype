@@ -2,9 +2,10 @@ package arrow.meta.autofold
 
 import arrow.meta.extensions.ExtensionPhase
 import arrow.meta.extensions.MetaComponentRegistrar
+import arrow.meta.higherkind.arity
 import arrow.meta.higherkind.isKinded
 import arrow.meta.kt.SealedSubclass
-import arrow.meta.kt.arity
+import arrow.meta.kt.renderSuperTypes
 import arrow.meta.kt.sealedSubclasses
 import arrow.meta.qq.classOrObject
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
@@ -21,6 +22,7 @@ val MetaComponentRegistrar.autoFold: List<ExtensionPhase>
   get() =
     meta(
       classOrObject(::isAutoFoldable) { c ->
+        println("Processing Autofoldable: ${c.name} with superTypes:${c.renderSuperTypes()}")
         val sealedExtraTypes = sealedVariants.map { it.typeVariables }.flatten()
         val typeInfoString = sealedExtraTypes.joinToString(separator = ", ")
         val returnType = "ARROW_FOLD"

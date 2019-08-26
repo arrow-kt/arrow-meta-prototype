@@ -7,6 +7,7 @@ apply plugin: 'kotlin'
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile project(":compiler-plugin")
+    compile project(":core") //as long as the plugin is not integrated with arrow-core
 }
 
 compileKotlin {

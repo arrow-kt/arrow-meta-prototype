@@ -13,7 +13,7 @@ object test {
     println(Comprehensions.simpleBind())
     //println(Comprehensions.existentFlatMap())
 
-    // println(Autofold.syntheticAFold())
-    // println(Autofold.syntheticExprFold())
+    println(Autofold.syntheticAFold())
+    println(Autofold.syntheticExprFold())
   }
 }

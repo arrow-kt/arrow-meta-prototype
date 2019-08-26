@@ -7,7 +7,7 @@ plugins {
 apply plugin: 'kotlin'
 
 project.group = 'io.arrow-kt'
-project.version = '0.0.1'
+project.version = '0.0.1-SNAPSHOT'
 
 dependencies {
   implementation gradleApi()

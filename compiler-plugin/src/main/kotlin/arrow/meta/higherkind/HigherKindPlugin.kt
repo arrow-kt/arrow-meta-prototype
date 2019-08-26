@@ -23,6 +23,8 @@ val MetaComponentRegistrar.higherKindedTypes: List<ExtensionPhase>
             "typealias ${name}PartialOf<${c.partialTypeParameters}> = arrow.Kind${c.partialKindAritySuffix}<For$name, ${c.partialTypeParameters}>"
           else null,
           /** Class redefinition with kinded super type **/
+          // Warning needs to be added, because of cases where one ADT Branch is isomorphic in respect to the ADT, e.g.:
+          // Kind<ForExpr, Int> == ForSum == Sum<C> == Expr<Int, C>
           """
               |@Suppress("INCONSISTENT_TYPE_PARAMETER_VALUES")
               |$visibility $modality $kind $name<$typeParameters>($valueParameters) : ${if ((String::isNotEmpty)(supertypes.identifier)) ({ it: String -> "$it, " })(supertypes.identifier) else supertypes.identifier}${name}Of<${typeParameters.invariant}> {
