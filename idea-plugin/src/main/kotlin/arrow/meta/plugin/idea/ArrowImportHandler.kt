@@ -13,8 +13,8 @@ internal object ArrowImportHandler {
   /**
    * The path to the IntelliJ compatible compiler plugin version.
    */
-  private val PLUGIN_JPS_JAR: String?
-    get() = PathManager.getJarPathForClass(MetaCliProcessor::class.java)
+  private val PLUGIN_JPS_JAR: String
+    get() = PathManager.getJarPathForClass(MetaCliProcessor::class.java).orEmpty()
 
   /**
    * The [Logger] instance for this class.
@@ -46,8 +46,8 @@ internal object ArrowImportHandler {
       }
 
     // Add the compatible compiler plugin version to the classpath if available and is enabled in Gradle
-    val newPluginClasspaths = if (isEnabled && PLUGIN_JPS_JAR != null)
-      oldPluginClasspaths + PLUGIN_JPS_JAR!!
+    val newPluginClasspaths: List<String> = if (isEnabled && PLUGIN_JPS_JAR.isNotEmpty())
+      oldPluginClasspaths + PLUGIN_JPS_JAR
     else
       oldPluginClasspaths
 
