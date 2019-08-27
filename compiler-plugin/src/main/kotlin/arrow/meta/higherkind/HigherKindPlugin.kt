@@ -8,7 +8,6 @@ import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtFile
 
-
 val MetaComponentRegistrar.higherKindedTypes: List<ExtensionPhase>
   get() =
     meta(
@@ -24,16 +23,19 @@ val MetaComponentRegistrar.higherKindedTypes: List<ExtensionPhase>
             "typealias ${name}PartialOf<${c.partialTypeParameters}> = arrow.Kind${c.partialKindAritySuffix}<For$name, ${c.partialTypeParameters}>"
           else null,
           /** Class redefinition with kinded super type **/
+          // Warning needs to be added, because of cases where one ADT Branch is isomorphic in respect to the ADT, e.g.:
+          // Kind<ForExpr, Int> == ForSum == Sum<C> == Expr<Int, C>
           """
-              |$modality $visibility $kind $name<$typeParameters>($valueParameters) : ${name}Of<${typeParameters.invariant}> {
+              |@Suppress("INCONSISTENT_TYPE_PARAMETER_VALUES")
+              |$visibility $modality $kind $name<$typeParameters>($valueParameters) : ${if ((String::isNotEmpty)(supertypes.identifier)) ({ it: String -> "$it, " })(supertypes.identifier) else supertypes.identifier}${name}Of<${typeParameters.invariant}> {
               |  $body
               |}
-              |"""
+              """.trimMargin()
         )
       }
     )
 
-private val Name.invariant: String
+val Name.invariant: String
   get() = identifier
     .replace("out ", "")
     .replace("in ", "")
@@ -45,7 +47,7 @@ private val KtClass.partialTypeParameters: String
       it.nameAsSafeName.identifier
     }
 
-private val KtClass.arity: Int
+val KtClass.arity: Int
   get() = typeParameters.size
 
 private val KtClass.kindAritySuffix: String
@@ -54,9 +56,11 @@ private val KtClass.kindAritySuffix: String
 private val KtClass.partialKindAritySuffix: String
   get() = (arity - 1).let { if (it > 1) "$it" else "" }
 
+fun KtClass.isKinded() =
+  fqName?.asString()?.startsWith("arrow.Kind") != true
+
 fun isHigherKindedType(ktClass: KtClass): Boolean =
-  ktClass.fqName?.asString()?.startsWith("arrow.Kind") != true &&
-    !ktClass.isAnnotation() &&
+  ktClass.isKinded() && !ktClass.isAnnotation() &&
     ktClass.typeParameters.isNotEmpty() &&
     ktClass.parent is KtFile
 
