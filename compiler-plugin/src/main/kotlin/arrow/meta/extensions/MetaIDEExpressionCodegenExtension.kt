@@ -36,8 +36,13 @@ class MetaIDEExpressionCodegenExtension(
   }
 }
 
-class MetaIDEIrExtension : IrGenerationExtension {
+class MetaIDEIrExtension(
+  val project: MockProject,
+  val phase: ExtensionPhase.IRGeneration,
+  val compilerContext: CompilerContext
+) : IrGenerationExtension {
   override fun generate(file: IrFile, backendContext: BackendContext, bindingContext: BindingContext) {
-    /* No-op – don't enable IR extensions in IDE */
+    println("MetaIDEIrExtension.generate works")
+    phase.run { compilerContext.generate(file, backendContext, bindingContext) }
   }
 }

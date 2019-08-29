@@ -42,12 +42,10 @@
 </extensions>
 <extensions defaultExtensionNs="org.jetbrains.kotlin">
     <gradleProjectImportHandler implementation="arrow.meta.plugin.idea.ArrowGradleImportHandler" />
-<!--
     <expressionCodegenExtension implementation="arrow.meta.extensions.MetaIDEExpressionCodegenExtension"/>
--->
     <syntheticResolveExtension implementation="arrow.meta.extensions.MetaIDESyntheticResolveExtension"/>
-<!--    <irGenerationExtension implementation="org.jetbrains.kotlinx.serialization.compiler.extensions.SerializationIDEIrExtension"/>
-    <storageComponentContainerContributor implementation="org.jetbrains.kotlinx.serialization.compiler.extensions.SerializationIDEContainerContributor"/>-->
+    <irGenerationExtension implementation="arrow.meta.extensions.MetaIDEIrExtension"/>
+    <storageComponentContainerContributor implementation="arrow.meta.extensions.MetaIDEDelegatingContributorChecker"/>
 </extensions>
 
 

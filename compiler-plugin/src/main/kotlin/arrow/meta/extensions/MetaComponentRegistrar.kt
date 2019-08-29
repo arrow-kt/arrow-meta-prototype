@@ -48,14 +48,12 @@ import org.jetbrains.kotlin.extensions.StorageComponentContainerContributor
 import org.jetbrains.kotlin.incremental.components.LookupTracker
 import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.platform.TargetPlatform
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtModifierListOwner
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
-import org.jetbrains.kotlin.resolve.checkers.DeclarationChecker
 import org.jetbrains.kotlin.resolve.checkers.DeclarationCheckerContext
 import org.jetbrains.kotlin.resolve.diagnostics.DiagnosticSuppressor
 import org.jetbrains.kotlin.resolve.diagnostics.MutableDiagnosticsWithSuppression
@@ -549,15 +547,7 @@ interface MetaComponentRegistrar : ComponentRegistrar {
     phase: ExtensionPhase.IRGeneration,
     compilerContext: CompilerContext
   ) {
-    IrGenerationExtension.registerExtension(project, object : IrGenerationExtension {
-      override fun generate(
-        file: IrFile,
-        backendContext: BackendContext,
-        bindingContext: BindingContext
-      ) {
-        phase.run { compilerContext.generate(file, backendContext, bindingContext) }
-      }
-    })
+    IrGenerationExtension.registerExtension(project, MetaIDEIrExtension(project, phase, compilerContext))
   }
 
   fun registerSyntheticResolver(
@@ -656,17 +646,6 @@ interface MetaComponentRegistrar : ComponentRegistrar {
     (bindingTrace.bindingContext.diagnostics as? MutableDiagnosticsWithSuppression)?.let {
       val diagnosticList = it.getOwnDiagnostics() as ArrayList<Diagnostic>
       diagnosticList.removeIf(f)
-    }
-  }
-
-  class DelegatingContributorChecker(val phase: ExtensionPhase.StorageComponentContainer, val ctx: CompilerContext) : StorageComponentContainerContributor, DeclarationChecker {
-
-    override fun registerModuleComponents(container: StorageComponentContainer, platform: TargetPlatform, moduleDescriptor: ModuleDescriptor) {
-      phase.run { ctx.registerModuleComponents(container, moduleDescriptor) }
-    }
-
-    override fun check(declaration: KtDeclaration, descriptor: DeclarationDescriptor, context: DeclarationCheckerContext) {
-      phase.run { ctx.check(declaration, descriptor, context) }
     }
   }
 
