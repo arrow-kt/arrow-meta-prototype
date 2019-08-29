@@ -1,6 +1,5 @@
 package arrow.meta.extensions
 
-import org.jetbrains.kotlin.com.intellij.mock.MockProject
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor
@@ -15,7 +14,6 @@ import org.jetbrains.kotlin.types.KotlinType
 import java.util.*
 
 class MetaIDESyntheticResolveExtension(
-  val project: MockProject,
   val phase: ExtensionPhase.SyntheticResolver,
   val compilerContext: CompilerContext
 ) : SyntheticResolveExtension {

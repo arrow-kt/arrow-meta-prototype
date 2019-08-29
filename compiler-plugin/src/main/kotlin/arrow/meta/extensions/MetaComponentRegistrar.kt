@@ -547,7 +547,7 @@ interface MetaComponentRegistrar : ComponentRegistrar {
     phase: ExtensionPhase.IRGeneration,
     compilerContext: CompilerContext
   ) {
-    IrGenerationExtension.registerExtension(project, MetaIDEIrExtension(project, phase, compilerContext))
+    IrGenerationExtension.registerExtension(project, MetaIDEIrExtension(phase, compilerContext))
   }
 
   fun registerSyntheticResolver(
@@ -555,7 +555,7 @@ interface MetaComponentRegistrar : ComponentRegistrar {
     phase: ExtensionPhase.SyntheticResolver,
     compilerContext: CompilerContext
   ) {
-    SyntheticResolveExtension.registerExtension(project, MetaIDESyntheticResolveExtension(project, phase, compilerContext))
+    SyntheticResolveExtension.registerExtension(project, MetaIDESyntheticResolveExtension(phase, compilerContext))
   }
 
   fun packageFragmentProvider(
@@ -639,7 +639,7 @@ interface MetaComponentRegistrar : ComponentRegistrar {
   }
 
   fun registerCodegen(project: MockProject, phase: ExtensionPhase.Codegen, ctx: CompilerContext) {
-    ExpressionCodegenExtension.registerExtension(project, MetaIDEExpressionCodegenExtension(project, phase, ctx))
+    ExpressionCodegenExtension.registerExtension(project, MetaIDEExpressionCodegenExtension(phase, ctx))
   }
 
   fun CompilerContext.suppressDiagnostic(f: (Diagnostic) -> Boolean): Unit {
