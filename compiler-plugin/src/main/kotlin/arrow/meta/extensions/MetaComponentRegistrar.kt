@@ -1,10 +1,10 @@
 package arrow.meta.extensions
 
 import arrow.meta.higherkind.KindAwareTypeChecker
-import arrow.meta.utils.setFinalStatic
 import arrow.meta.utils.NoOp3
 import arrow.meta.utils.NoOp6
 import arrow.meta.utils.NullableOp1
+import arrow.meta.utils.setFinalStatic
 import org.jetbrains.kotlin.analyzer.AnalysisResult
 import org.jetbrains.kotlin.analyzer.ModuleInfo
 import org.jetbrains.kotlin.backend.common.BackendContext
@@ -565,95 +565,7 @@ interface MetaComponentRegistrar : ComponentRegistrar {
     phase: ExtensionPhase.SyntheticResolver,
     compilerContext: CompilerContext
   ) {
-    SyntheticResolveExtension.registerExtension(project, object : SyntheticResolveExtension {
-      override fun addSyntheticSupertypes(thisDescriptor: ClassDescriptor, supertypes: MutableList<KotlinType>) {
-        phase.run { compilerContext.addSyntheticSupertypes(thisDescriptor, supertypes) }
-      }
-
-      override fun generateSyntheticClasses(
-        thisDescriptor: ClassDescriptor,
-        name: Name,
-        ctx: LazyClassContext,
-        declarationProvider: ClassMemberDeclarationProvider,
-        result: MutableSet<ClassDescriptor>
-      ) {
-        phase.run {
-          compilerContext.generateSyntheticClasses(
-            thisDescriptor,
-            name,
-            ctx,
-            declarationProvider,
-            result
-          )
-        }
-      }
-
-      override fun generateSyntheticClasses(
-        thisDescriptor: PackageFragmentDescriptor,
-        name: Name,
-        ctx: LazyClassContext,
-        declarationProvider: PackageMemberDeclarationProvider,
-        result: MutableSet<ClassDescriptor>
-      ) {
-        phase.run {
-          compilerContext.generatePackageSyntheticClasses(
-            thisDescriptor,
-            name,
-            ctx,
-            declarationProvider,
-            result
-          )
-        }
-      }
-
-      override fun generateSyntheticMethods(
-        thisDescriptor: ClassDescriptor,
-        name: Name,
-        bindingContext: BindingContext,
-        fromSupertypes: List<SimpleFunctionDescriptor>,
-        result: MutableCollection<SimpleFunctionDescriptor>
-      ) {
-        phase.run {
-          compilerContext.generateSyntheticMethods(
-            thisDescriptor,
-            name,
-            bindingContext,
-            fromSupertypes,
-            result
-          )
-        }
-      }
-
-      override fun generateSyntheticProperties(
-        thisDescriptor: ClassDescriptor,
-        name: Name,
-        bindingContext: BindingContext,
-        fromSupertypes: ArrayList<PropertyDescriptor>,
-        result: MutableSet<PropertyDescriptor>
-      ) {
-        phase.run {
-          compilerContext.generateSyntheticProperties(
-            thisDescriptor,
-            name,
-            bindingContext,
-            fromSupertypes,
-            result
-          )
-        }
-      }
-
-      override fun getSyntheticCompanionObjectNameIfNeeded(thisDescriptor: ClassDescriptor): Name? {
-        return phase.run { compilerContext.getSyntheticCompanionObjectNameIfNeeded(thisDescriptor) }
-      }
-
-      override fun getSyntheticFunctionNames(thisDescriptor: ClassDescriptor): List<Name> {
-        return phase.run { compilerContext.getSyntheticFunctionNames(thisDescriptor) }
-      }
-
-      override fun getSyntheticNestedClassNames(thisDescriptor: ClassDescriptor): List<Name> {
-        return phase.run { compilerContext.getSyntheticNestedClassNames(thisDescriptor) }
-      }
-    })
+    SyntheticResolveExtension.registerExtension(project, MetaIDESyntheticResolveExtension(project, phase, compilerContext))
   }
 
   fun packageFragmentProvider(
@@ -737,27 +649,7 @@ interface MetaComponentRegistrar : ComponentRegistrar {
   }
 
   fun registerCodegen(project: MockProject, phase: ExtensionPhase.Codegen, ctx: CompilerContext) {
-    ExpressionCodegenExtension.registerExtension(project, object : ExpressionCodegenExtension {
-      override fun applyFunction(
-        receiver: StackValue,
-        resolvedCall: ResolvedCall<*>,
-        c: ExpressionCodegenExtension.Context
-      ): StackValue? {
-        return phase.run { ctx.applyFunction(receiver, resolvedCall, c) }
-      }
-
-      override fun applyProperty(
-        receiver: StackValue,
-        resolvedCall: ResolvedCall<*>,
-        c: ExpressionCodegenExtension.Context
-      ): StackValue? {
-        return phase.run { ctx.applyProperty(receiver, resolvedCall, c) }
-      }
-
-      override fun generateClassSyntheticParts(codegen: ImplementationBodyCodegen) {
-        phase.run { ctx.generateClassSyntheticParts(codegen) }
-      }
-    })
+    ExpressionCodegenExtension.registerExtension(project, MetaIDEExpressionCodegenExtension(project, phase, ctx))
   }
 
   fun CompilerContext.suppressDiagnostic(f: (Diagnostic) -> Boolean): Unit {

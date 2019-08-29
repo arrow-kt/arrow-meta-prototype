@@ -27,7 +27,7 @@ jar {
 intellij {
     version = "2019.2.1"
     pluginName = "Arrow plugin"
-    setPlugins("gradle", "org.jetbrains.kotlin:$kotlin_version-release-IJ2019.2-1")
+    setPlugins("gradle", "java", "org.jetbrains.kotlin:$kotlin_version-release-IJ2019.2-1")
 }
 
 patchPluginXml {

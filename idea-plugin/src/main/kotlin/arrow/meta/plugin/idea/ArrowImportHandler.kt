@@ -46,7 +46,7 @@ internal object ArrowImportHandler {
       }
 
     // Add the compatible compiler plugin version to the classpath if available and is enabled in Gradle
-    val newPluginClasspaths: List<String> = if (isEnabled && PLUGIN_JPS_JAR.isNotEmpty())
+    val newPluginClasspaths = if (isEnabled && PLUGIN_JPS_JAR.isNotEmpty())
       oldPluginClasspaths + PLUGIN_JPS_JAR
     else
       oldPluginClasspaths

@@ -17,9 +17,38 @@
 
 <depends>org.jetbrains.plugins.gradle</depends>
 <depends>org.jetbrains.kotlin</depends>
+<extensions defaultExtensionNs="com.intellij">
+    <!--<typeHierarchyProvider language="kotlin" implementationClass="arrow.meta.plugin.idea.ArrowTypeHierarchyProvider"/>-->
 
+
+    <!-- Singleton
+    <projectService serviceInterface="org.jetbrains.kotlin.resolve.lazy.declarations.DeclarationProviderFactoryService"
+                    serviceImplementation="arrow.meta.plugin.idea.ArrowDeclarationProviderFactoryService"/>-->
+    <!--<typeDeclarationProvider implementation="arrow.meta.plugin.idea.ArrowTypeDeclarationProvider"/>
+
+    <localInspection implementationClass="arrow.meta.plugin.idea.inspection.AddSuspendedModifierInspection"
+                     displayName="Function should have suspend modifier"
+                     groupPath="Kotlin"
+                     groupName="Style issues"
+                     enabledByDefault="true"
+                     level="WARNING"
+                     language="kotlin"
+    />
+
+    <elementDescriptionProvider
+            implementation="arrow.meta.plugin.idea.ArrowElementDescriptionProvider"
+            order="first"/>-->
+
+</extensions>
 <extensions defaultExtensionNs="org.jetbrains.kotlin">
     <gradleProjectImportHandler implementation="arrow.meta.plugin.idea.ArrowGradleImportHandler" />
+<!--
+    <expressionCodegenExtension implementation="arrow.meta.extensions.MetaIDEExpressionCodegenExtension"/>
+-->
+    <syntheticResolveExtension implementation="arrow.meta.extensions.MetaIDESyntheticResolveExtension"/>
+<!--    <irGenerationExtension implementation="org.jetbrains.kotlinx.serialization.compiler.extensions.SerializationIDEIrExtension"/>
+    <storageComponentContainerContributor implementation="org.jetbrains.kotlinx.serialization.compiler.extensions.SerializationIDEContainerContributor"/>-->
 </extensions>
+
 
 </idea-plugin>
