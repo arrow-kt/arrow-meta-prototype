@@ -48,12 +48,14 @@ import org.jetbrains.kotlin.extensions.StorageComponentContainerContributor
 import org.jetbrains.kotlin.incremental.components.LookupTracker
 import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.name.Name
+import org.jetbrains.kotlin.platform.TargetPlatform
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtModifierListOwner
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
+import org.jetbrains.kotlin.resolve.checkers.DeclarationChecker
 import org.jetbrains.kotlin.resolve.checkers.DeclarationCheckerContext
 import org.jetbrains.kotlin.resolve.diagnostics.DiagnosticSuppressor
 import org.jetbrains.kotlin.resolve.diagnostics.MutableDiagnosticsWithSuppression
@@ -547,7 +549,15 @@ interface MetaComponentRegistrar : ComponentRegistrar {
     phase: ExtensionPhase.IRGeneration,
     compilerContext: CompilerContext
   ) {
-    IrGenerationExtension.registerExtension(project, MetaIDEIrExtension(phase, compilerContext))
+    IrGenerationExtension.registerExtension(project, object : IrGenerationExtension {
+      override fun generate(
+        file: IrFile,
+        backendContext: BackendContext,
+        bindingContext: BindingContext
+      ) {
+        phase.run { compilerContext.generate(file, backendContext, bindingContext) }
+      }
+    })
   }
 
   fun registerSyntheticResolver(
@@ -555,7 +565,103 @@ interface MetaComponentRegistrar : ComponentRegistrar {
     phase: ExtensionPhase.SyntheticResolver,
     compilerContext: CompilerContext
   ) {
-    SyntheticResolveExtension.registerExtension(project, MetaIDESyntheticResolveExtension(phase, compilerContext))
+    SyntheticResolveExtension.registerExtension(project, object : SyntheticResolveExtension {
+      override fun addSyntheticSupertypes(thisDescriptor: ClassDescriptor, supertypes: MutableList<KotlinType>) {
+        phase.run {
+          compilerContext.addSyntheticSupertypes(thisDescriptor, supertypes)
+        }
+      }
+
+      override fun generateSyntheticClasses(
+        thisDescriptor: ClassDescriptor,
+        name: Name,
+        ctx: LazyClassContext,
+        declarationProvider: ClassMemberDeclarationProvider,
+        result: MutableSet<ClassDescriptor>
+      ) {
+        phase.run {
+          compilerContext.generateSyntheticClasses(
+            thisDescriptor,
+            name,
+            ctx,
+            declarationProvider,
+            result
+          )
+        }
+      }
+
+      override fun generateSyntheticClasses(
+        thisDescriptor: PackageFragmentDescriptor,
+        name: Name,
+        ctx: LazyClassContext,
+        declarationProvider: PackageMemberDeclarationProvider,
+        result: MutableSet<ClassDescriptor>
+      ) {
+        phase.run {
+          compilerContext.generatePackageSyntheticClasses(
+            thisDescriptor,
+            name,
+            ctx,
+            declarationProvider,
+            result
+          )
+        }
+      }
+
+      override fun generateSyntheticMethods(
+        thisDescriptor: ClassDescriptor,
+        name: Name,
+        bindingContext: BindingContext,
+        fromSupertypes: List<SimpleFunctionDescriptor>,
+        result: MutableCollection<SimpleFunctionDescriptor>
+      ) {
+        phase.run {
+          compilerContext.generateSyntheticMethods(
+            thisDescriptor,
+            name,
+            bindingContext,
+            fromSupertypes,
+            result
+          )
+        }
+      }
+
+      override fun generateSyntheticProperties(
+        thisDescriptor: ClassDescriptor,
+        name: Name,
+        bindingContext: BindingContext,
+        fromSupertypes: ArrayList<PropertyDescriptor>,
+        result: MutableSet<PropertyDescriptor>
+      ) {
+        phase.run {
+          compilerContext.generateSyntheticProperties(
+            thisDescriptor,
+            name,
+            bindingContext,
+            fromSupertypes,
+            result
+          )
+        }
+      }
+
+      override fun getSyntheticCompanionObjectNameIfNeeded(thisDescriptor: ClassDescriptor): Name? {
+        return phase.run {
+          compilerContext.getSyntheticCompanionObjectNameIfNeeded(thisDescriptor)
+        }
+      }
+
+      override fun getSyntheticFunctionNames(thisDescriptor: ClassDescriptor): List<Name> {
+        return phase.run {
+          compilerContext.getSyntheticFunctionNames(thisDescriptor)
+        }
+      }
+
+      override fun getSyntheticNestedClassNames(thisDescriptor: ClassDescriptor): List<Name> {
+        return phase.run {
+          compilerContext.getSyntheticNestedClassNames(thisDescriptor)
+        }
+      }
+    })
   }
 
   fun packageFragmentProvider(
@@ -639,13 +745,44 @@ interface MetaComponentRegistrar : ComponentRegistrar {
   }
 
   fun registerCodegen(project: MockProject, phase: ExtensionPhase.Codegen, ctx: CompilerContext) {
-    ExpressionCodegenExtension.registerExtension(project, MetaIDEExpressionCodegenExtension(phase, ctx))
+    ExpressionCodegenExtension.registerExtension(project, object : ExpressionCodegenExtension {
+      override fun applyFunction(
+        receiver: StackValue,
+        resolvedCall: ResolvedCall<*>,
+        c: ExpressionCodegenExtension.Context
+      ): StackValue? {
+        return phase.run { ctx.applyFunction(receiver, resolvedCall, c) }
+      }
+
+      override fun applyProperty(
+        receiver: StackValue,
+        resolvedCall: ResolvedCall<*>,
+        c: ExpressionCodegenExtension.Context
+      ): StackValue? {
+        return phase.run { ctx.applyProperty(receiver, resolvedCall, c) }
+      }
+
+      override fun generateClassSyntheticParts(codegen: ImplementationBodyCodegen) {
+        phase.run { ctx.generateClassSyntheticParts(codegen) }
+      }
+    })
   }
 
   fun CompilerContext.suppressDiagnostic(f: (Diagnostic) -> Boolean): Unit {
     (bindingTrace.bindingContext.diagnostics as? MutableDiagnosticsWithSuppression)?.let {
       val diagnosticList = it.getOwnDiagnostics() as ArrayList<Diagnostic>
       diagnosticList.removeIf(f)
+    }
+  }
+
+  class DelegatingContributorChecker(val phase: ExtensionPhase.StorageComponentContainer, val ctx: CompilerContext) : StorageComponentContainerContributor, DeclarationChecker {
+
+    override fun registerModuleComponents(container: StorageComponentContainer, platform: TargetPlatform, moduleDescriptor: ModuleDescriptor) {
+      phase.run { ctx.registerModuleComponents(container, moduleDescriptor) }
+    }
+
+    override fun check(declaration: KtDeclaration, descriptor: DeclarationDescriptor, context: DeclarationCheckerContext) {
+      phase.run { ctx.check(declaration, descriptor, context) }
     }
   }
 

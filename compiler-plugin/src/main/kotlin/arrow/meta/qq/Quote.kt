@@ -94,8 +94,9 @@ inline fun <P : KtElement, reified K : KtElement, S, Q : Quote<P, K, S>> MetaCom
     doAnalysis = { project, module, projectContext, files, bindingTrace, componentProvider ->
       files as ArrayList
       //files.clear()
-      val fileMutations = processFiles(files, quoteFactory, match, map)
+      val fileMutations: List<Pair<KtFile, ArrayList<QuoteTransformation<K>>>> = processFiles(files, quoteFactory, match, map)
       files.updateFiles(fileMutations)
+      transformations.plus(fileMutations)
       null
     },
     analysisCompleted = { project, module, bindingTrace, files ->

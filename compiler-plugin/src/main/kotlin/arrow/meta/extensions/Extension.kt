@@ -49,7 +49,6 @@ import org.jetbrains.kotlin.resolve.scopes.SyntheticScope
 import org.jetbrains.kotlin.storage.StorageManager
 import org.jetbrains.kotlin.synthetic.JavaSyntheticPropertiesScope
 import org.jetbrains.kotlin.types.KotlinType
-import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 interface ExtensionPhase {
@@ -215,7 +214,6 @@ class CompilerContext(
   val elementFactory: PsiElementFactory = JavaPsiFacade.getInstance(project).elementFactory,
   val ktPsiElementFactory: KtPsiFactory = KtPsiFactory(project, false)
 ) {
-
   lateinit var lazyClassContext: ResolveSession
   val ctx: CompilerContext = this
   lateinit var module: ModuleDescriptor
@@ -224,7 +222,7 @@ class CompilerContext(
   lateinit var bindingTrace: BindingTrace
   lateinit var componentProvider: ComponentProvider
 
-  val transformations: ArrayList<QuoteTransformation<*>> = arrayListOf()
+  val transformations: ArrayList<Pair<KtFile, ArrayList<QuoteTransformation<*>>>> = arrayListOf()
 
   private val descriptorPhaseState = ConcurrentHashMap<FqName, ClassDescriptor>()
 

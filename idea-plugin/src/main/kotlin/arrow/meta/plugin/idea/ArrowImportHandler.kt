@@ -16,6 +16,10 @@ internal object ArrowImportHandler {
   private val PLUGIN_JPS_JAR: String
     get() = PathManager.getJarPathForClass(MetaCliProcessor::class.java).orEmpty()
 
+  fun isPluginJarPath(path: String): Boolean {
+    return path.endsWith(PLUGIN_JPS_JAR)
+  }
+
   /**
    * The [Logger] instance for this class.
    */
