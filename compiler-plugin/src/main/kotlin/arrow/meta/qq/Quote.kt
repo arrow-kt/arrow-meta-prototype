@@ -54,6 +54,7 @@ import org.jetbrains.kotlin.types.KotlinTypeFactory
 import org.jetbrains.kotlin.types.TypeProjectionImpl
 import org.jetbrains.kotlin.types.Variance
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
+import javax.swing.Icon
 
 /**
  * A declaration quasi quote matches tree in the synthetic resolution and gives
@@ -132,24 +133,47 @@ fun MetaComponentRegistrar.classOrObject(
 
 inline fun <P : KtElement, reified K : KtElement, S, Q : Quote<P, K, S>> MetaAnalyzer.runMetaCompilation(
   compilerContext: CompilerContext,
-  project: Project,
   virtualFile: VirtualFile,
   document: Document,
   moduleInfo: ModuleInfo,
   quoteFactory: Quote.Factory<P, K, S>,
   noinline match: K.() -> Boolean,
   noinline map: S.(K) -> List<String>
-): Pair<KtFile, AnalysisResult> = compilerContext.run {
-  val originFakeFile = KtFile(SingleRootFileViewProvider(
-    project.getComponent(PsiManager::class.java),
-    virtualFile,
-    false
-  ), true)
-  val analyzableFile = ktPsiElementFactory.createAnalyzableFile(virtualFile.name, document.text, originFakeFile)
-  val (file, transformations) = processKtFile(analyzableFile, quoteFactory, match, map)
-  val transformedFile = transformFile(file, transformations)
-  transformedFile to transformedFile.metaAnalysys(moduleInfo)
+): Pair<KtFile, AnalysisResult>? = compilerContext.run {
+  analyzer?.run {
+    ideProject()?.let {
+      val originFakeFile = KtFile(SingleRootFileViewProvider(
+        project.getComponent(PsiManager::class.java),
+        virtualFile,
+        false
+      ), true)
+      val analyzableFile = ktPsiElementFactory.createAnalyzableFile(virtualFile.name, document.text, originFakeFile)
+      val (file, transformations) = processKtFile(analyzableFile, quoteFactory, match, map)
+      val transformedFile = transformFile(file, transformations)
+      transformedFile to transformedFile.metaAnalysys(moduleInfo)
+    }
+  }
 }
+
+fun MetaComponentRegistrar.iconProvider(
+  getIcon: MetaIconProvider.(psiElement: PsiElement, flags: Int) -> Icon?
+): ExtensionPhase =
+  ide {
+    storageComponent(
+      registerModuleComponents = { container, moduleDescriptor ->
+        analyzer?.run {
+          ideProject().let { project ->
+            val iconProviderRegistry = project?.getComponent(MetaIconProvider::class.java)
+
+            iconProviderRegistry?.registerIconProvider(getIcon)
+          }
+        }
+      },
+      check = { declaration, descriptor, context ->
+      }
+    )
+  } ?: ExtensionPhase.Empty
+
 
 
 @Suppress("UNCHECKED_CAST")
@@ -174,36 +198,34 @@ inline fun <P : KtElement, reified K : KtElement, S, Q : Quote<P, K, S>> MetaCom
   } ?: ide {
     println("Register SYNTH RESOLVER IN IDEA")
     ExtensionPhase.CompositePhase(
+//      diagnosticsSuppressor { diagnostic ->
+//        println("diagnosticsSuppressor: $diagnostic")
+//        false
+//      },
       packageFragmentProvider { project, module, storageManager, trace, moduleInfo, lookupTracker ->
         analyzer?.run {
           moduleInfo?.let { info ->
-            subscribeToEditorHooks(project, quoteFactory, match, map) { virtualFile, document ->
-              runMetaCompilation(this@packageFragmentProvider, project, virtualFile, document, info, quoteFactory, match, map)
+            subscribeToEditorHooks(quoteFactory, match, map) { virtualFile, document ->
+              runMetaCompilation(this@packageFragmentProvider, virtualFile, document, info, quoteFactory, match, map)
             }
-//
-//            val (file, analysysResult) = runMetaCompilation(this@packageFragmentProvider, project, virtualFile, document, info, quoteFactory, match, map)
-//            populateSyntheticCache(doc)
           }
         }
         object : PackageFragmentProvider {
-          override fun getPackageFragments(fqName: FqName): List<PackageFragmentDescriptor> {
+          override fun getPackageFragments(fqName: FqName): List<PackageFragmentDescriptor> { //TODO this SOEs
             val result = analyzer?.run {
-              storageManager.createRecursionTolerantLazyValue({
-                metaPackageFragments(module, fqName)
-              }, emptyList()).invoke()
-            } ?: emptyList()
-            println("PackageFragmentProvider.getPackageFragments: $fqName $result")
-            return result
+              val r = metaPackageFragments(storageManager, module, fqName)
+              println("${genStatus(module)}: PackageFragmentProvider.getPackageFragments: $fqName $r")
+              r
+            }
+            return result ?: emptyList()
           }
 
           override fun getSubPackagesOf(fqName: FqName, nameFilter: (Name) -> Boolean): Collection<FqName> {
             val result = analyzer?.run {
-              storageManager.createRecursionTolerantLazyValue({
-                metaSubPackagesOf(module, fqName, nameFilter)
-              }, emptyList()).invoke()
-            } ?: emptyList()
+              metaSubPackagesOf(storageManager, module, fqName, nameFilter)
+            }
             println("PackageFragmentProvider.metaSubPackagesOf: $fqName $result")
-            return result
+            return result ?: emptyList()
           }
 
 
@@ -213,14 +235,14 @@ inline fun <P : KtElement, reified K : KtElement, S, Q : Quote<P, K, S>> MetaCom
         addSyntheticSupertypes = { thisDescriptor, supertypes ->
           analyzer?.run {
             val synthetic: List<KotlinType> = metaSyntheticSupertypes(thisDescriptor)
-            println("MetaSyntheticResolverExtension.addSyntheticSupertypes for $thisDescriptor name: [$synthetic]")
+            println("${genStatus(thisDescriptor)}: MetaSyntheticResolverExtension.addSyntheticSupertypes for $thisDescriptor name: [$synthetic]")
             supertypes.addAll(synthetic)
           }
         },
         getSyntheticCompanionObjectNameIfNeeded = { thisDescriptor ->
           analyzer?.run {
             val companionName: Name? = metaCompanionObjectNameIfNeeded(thisDescriptor)
-            println("MetaSyntheticResolverExtension.getSyntheticCompanionObjectNameIfNeeded for $thisDescriptor name: [$companionName]")
+            println("${genStatus(thisDescriptor)}: MetaSyntheticResolverExtension.getSyntheticCompanionObjectNameIfNeeded for $thisDescriptor name: [$companionName]")
             companionName
           }
         },
@@ -228,7 +250,7 @@ inline fun <P : KtElement, reified K : KtElement, S, Q : Quote<P, K, S>> MetaCom
           analyzer?.run {
             val syntheticClasses: List<ClassDescriptor> = metaSyntheticClasses(name, thisDescriptor, declarationProvider)
             result.addAll(syntheticClasses)
-            println("MetaSyntheticResolverExtension.generateSyntheticClasses for $thisDescriptor [$name]: $result")
+            println("${genStatus(thisDescriptor)}: MetaSyntheticResolverExtension.generateSyntheticClasses for $thisDescriptor [$name]: $result")
             result
           }
         },
@@ -236,7 +258,7 @@ inline fun <P : KtElement, reified K : KtElement, S, Q : Quote<P, K, S>> MetaCom
           analyzer?.run {
             val synthetic: List<ClassDescriptor> = metaSyntheticPackageClasses(name, thisDescriptor, declarationProvider)
             result.addAll(synthetic)
-            println("MetaSyntheticResolverExtension.generatePackageSyntheticClasses for $thisDescriptor [$name]: $result")
+            println("${genStatus(thisDescriptor)}: MetaSyntheticResolverExtension.generatePackageSyntheticClasses for $thisDescriptor [$name]: $result")
             result
           }
         },
@@ -244,7 +266,7 @@ inline fun <P : KtElement, reified K : KtElement, S, Q : Quote<P, K, S>> MetaCom
           analyzer?.run {
             val synthetic: List<SimpleFunctionDescriptor> = metaSyntheticMethods(name, thisDescriptor)
             result.addAll(synthetic)
-            println("MetaSyntheticResolverExtension.generateSyntheticMethods for $thisDescriptor [$name]: $result")
+            println("${genStatus(thisDescriptor)}: MetaSyntheticResolverExtension.generateSyntheticMethods for $thisDescriptor [$name]: $result")
             result
           }
         },
@@ -252,146 +274,32 @@ inline fun <P : KtElement, reified K : KtElement, S, Q : Quote<P, K, S>> MetaCom
           analyzer?.run {
             val synthetic: List<PropertyDescriptor> = metaSyntheticProperties(name, thisDescriptor)
             result.addAll(synthetic)
-            println("MetaSyntheticResolverExtension.generateSyntheticMethods for $thisDescriptor [$name]: $result")
+            println("${genStatus(thisDescriptor)}: MetaSyntheticResolverExtension.generateSyntheticMethods for $thisDescriptor [$name]: $result")
             result
           }
         },
         getSyntheticFunctionNames = { thisDescriptor ->
           analyzer?.run {
             val result = metaSyntheticFunctionNames(thisDescriptor)
-            println("MetaSyntheticResolverExtension.getSyntheticFunctionNames: $thisDescriptor $result")
+            println("${genStatus(thisDescriptor)}: MetaSyntheticResolverExtension.getSyntheticFunctionNames: $thisDescriptor $result")
             result
           } ?: emptyList()
         },
         getSyntheticNestedClassNames = { thisDescriptor ->
           analyzer?.run {
             val result = metaSyntheticNestedClassNames(thisDescriptor)
-            println("MetaSyntheticResolverExtension.getSyntheticNestedClassNames: $thisDescriptor $result")
+            println("${genStatus(thisDescriptor)}: MetaSyntheticResolverExtension.getSyntheticNestedClassNames: $thisDescriptor $result")
             result
           } ?: emptyList()
         }
       )
     )
-//    syntheticResolver(
-//      generateSyntheticMethods = { thisDescriptor, _, bindingContext, fromSupertypes, result ->
-//        analyzer?.run {
-//          val classPsi = thisDescriptor.findPsi().safeAs<KtClassOrObject>()
-//          val ktFile = thisDescriptor.ktFile()
-//          if (classPsi != null && ktFile != null && !ktFile.isMetaFile()) {
-//            val (file, transformations) = processKtFile(ktFile, quoteFactory, match, map)
-//            val transformedFile = transformFile(file, transformations)
-//            val (_, module, shouldGenerateCode) = transformedFile.analyze()
-//            if (shouldGenerateCode) {
-//              transformedFile.declaredClassWithName(thisDescriptor.name)?.let { ktClass ->
-//                val synthetic = ktClass.functions() - classPsi.functions()
-//                val classDescriptor = module.findClassAcrossModuleDependencies(ClassId.topLevel(thisDescriptor.fqNameSafe))
-//                val synthDescriptors = synthetic.mapNotNull { ktNamedFunction ->
-//                  ktNamedFunction.name?.let { functionName ->
-//                    classDescriptor?.findFirstFunction(functionName) { it.findPsi() == ktNamedFunction }
-//                  }
-//                }
-//                println("meta.syntheticResolver: generateSyntheticMethods ${thisDescriptor.name}: $synthDescriptors ")
-//                result.contribute(synthDescriptors)
-//              }
-//            }
-//          }
-//        }
-//      },
-//      generateSyntheticClasses = { thisDescriptor, _, ctx, declarationProvider, result ->
-//        analyzer?.run {
-//          val classPsi = thisDescriptor.ktClassOrObject()
-//          val ktFile = thisDescriptor.ktFile()
-//          if (classPsi != null && ktFile != null && !ktFile.isMetaFile()) {
-//            val (file, transformations) = processKtFile(ktFile, quoteFactory, match, map)
-//            val transformedFile = transformFile(file, transformations)
-//            val (_, module, shouldGenerateCode) = transformedFile.analyze()
-//            if (shouldGenerateCode) {
-//              transformedFile.declaredClassWithName(thisDescriptor.name)?.let { ktClass ->
-//                val syntheticClasses = ktClass.nestedClasses() - classPsi.nestedClasses()
-//                val classDescriptor = module.findClassAcrossModuleDependencies(ClassId.topLevel(thisDescriptor.fqNameSafe))
-//                val classDeclarations = classDescriptor?.unsubstitutedMemberScope?.getContributedDescriptors { true }
-//                val synthDescriptors = syntheticClasses.mapNotNull {
-//                  classDeclarations?.firstOrNull { it.findPsi() == it } as? ClassDescriptor
-//                }
-//                println("meta.syntheticResolver: generate nested synth class ${thisDescriptor.name}: $synthDescriptors ")
-//                result.contribute(synthDescriptors)
-//              }
-//            }
-//          }
-//        }
-//      },
-//      generatePackageSyntheticClasses = { thisDescriptor, _, ctx, declarationProvider, result ->
-//        analyzer?.run {
-//          thisDescriptor.packageFiles(declarationProvider).forEach { ktFile ->
-//            if (!ktFile.isMetaFile()) {
-//              val transformedFile = processSources(ktFile, quoteFactory, match, map)
-//              val (_, module, shouldGenerateCode) = transformedFile.analyze()
-//              if (shouldGenerateCode) {
-//                val pck = module.getPackage(ktFile.packageFqName)
-//                val packageDeclarations = pck.declarations()
-//                val originalClasses = ktFile.classes()
-//                val transformedDeclarations = transformedFile.classes()
-//                val newDeclarations = (originalClasses + transformedDeclarations).distinctBy { it.name }
-//                val synthDescriptors = newDeclarations.mapNotNull { ktClassOrObject ->
-//                  packageDeclarations.firstOrNull { it.findPsi() == ktClassOrObject } as? ClassDescriptor
-//                }
-//                println("meta.syntheticResolver: generatePackageSyntheticClasses ${thisDescriptor.name}: $synthDescriptors ")
-//                result.contribute(synthDescriptors)
-//              }
-//            }
-//          }
-//        }
-//      },
-//      getSyntheticCompanionObjectNameIfNeeded = { thisDescriptor ->
-//        println("syntheticResolver.getSyntheticCompanionObjectNameIfNeeded: $thisDescriptor")
-//        val classPsi = thisDescriptor.ktClassOrObject()
-//        val ktFile = classPsi?.ktFile()
-//        if (classPsi != null && ktFile != null && !ktFile.isMetaFile()) {
-//          classPsi.ktFile()?.let { classKtFile ->
-//            val transformedFile = processSources(classKtFile, quoteFactory, match, map)
-//            transformedFile.ktClassNamed(classPsi.name)?.let { ktClass ->
-//              val companionName = companionName(ktClass)
-//              println("meta.syntheticResolver: found companion object name for descriptor ${thisDescriptor.name}: $companionName ")
-//              companionName?.let(Name::identifier)
-//            }
-//          }
-//        } else null
-//      },
-//      getSyntheticNestedClassNames = { thisDescriptor ->
-//        println("syntheticResolver.getSyntheticNestedClassNames: $thisDescriptor")
-//        thisDescriptor.ktClassOrObject()?.let { classPsi ->
-//          classPsi.ktFile()?.let { ktFile ->
-//            if (!ktFile.isMetaFile()) {
-//              val transformedFile = processSources(ktFile, quoteFactory, match, map)
-//              transformedFile.ktClassNamed(classPsi.name)?.let { ktClass ->
-//                val syntheticNames = ktClass.nestedClassNames() - classPsi.nestedClassNames()
-//                println("meta.syntheticResolver: found synthetic nested class names for descriptor ${thisDescriptor.name}: $syntheticNames ")
-//                syntheticNames.map(Name::identifier)
-//              }
-//            } else emptyList()
-//          }
-//        }
-//      },
-//      getSyntheticFunctionNames = { thisDescriptor ->
-//        val result = arrayListOf<Name>()
-//        println("syntheticResolver.getSyntheticFunctionNames: $thisDescriptor")
-//        val classPsi = thisDescriptor.ktClassOrObject()
-//        if (classPsi != null) {
-//          classPsi.ktFile()?.let { ktFile ->
-//            if (!ktFile.isMetaFile()) {
-//              val transformedFile = processSources(ktFile, quoteFactory, match, map)
-//              transformedFile.ktClassNamed(classPsi.name)?.let { ktClass ->
-//                val syntheticNames = ktClass.functionNames() - classPsi.functionNames()
-//                println("meta.syntheticResolver: found synthetic function names for descriptor ${thisDescriptor.name}: $syntheticNames ")
-//                result.addAll(syntheticNames.map(Name::identifier))
-//              }
-//            }
-//          }
-//        }
-//        result
-//      }
-//    )
   } ?: ExtensionPhase.Empty
+
+fun MetaAnalyzer.genStatus(declarationDescriptor: DeclarationDescriptor): String =
+  if (declarationDescriptor.isGenerated()) "[G]"
+  else "[U]"
+
 
 fun PackageViewDescriptor.declarations(): Collection<DeclarationDescriptor> =
   memberScope.getContributedDescriptors { true }
