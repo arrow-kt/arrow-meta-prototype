@@ -24,7 +24,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.UserDataHolderBase
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.util.FileContentUtil
 import com.intellij.util.keyFMap.KeyFMap
 import org.jetbrains.kotlin.analyzer.AnalysisResult
 import org.jetbrains.kotlin.analyzer.ModuleInfo
@@ -36,8 +35,6 @@ import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor
 import org.jetbrains.kotlin.descriptors.PackageViewDescriptor
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor
 import org.jetbrains.kotlin.descriptors.SimpleFunctionDescriptor
-import org.jetbrains.kotlin.descriptors.TypeAliasDescriptor
-import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.descriptors.impl.DeclarationDescriptorVisitorEmptyBodies
 import org.jetbrains.kotlin.idea.caches.project.forcedModuleInfo
 import org.jetbrains.kotlin.idea.caches.resolve.analyzeWithAllCompilerChecks
@@ -48,15 +45,10 @@ import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtFile
-import org.jetbrains.kotlin.psi.KtPureClassOrObject
-import org.jetbrains.kotlin.psi.synthetics.SyntheticClassOrObjectDescriptor
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.module
-import org.jetbrains.kotlin.resolve.lazy.LazyClassContext
 import org.jetbrains.kotlin.resolve.lazy.declarations.ClassMemberDeclarationProvider
 import org.jetbrains.kotlin.resolve.lazy.declarations.PackageMemberDeclarationProvider
-import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyClassDescriptor
-import org.jetbrains.kotlin.storage.StorageManager
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
@@ -72,35 +64,29 @@ private val blackList: Set<Name> =
 
 class SyntheticDescriptorCache(
   val module: ModuleDescriptor,
-  val file: KtFile,
   val descriptorCache: ConcurrentHashMap<FqName, DeclarationDescriptor> = ConcurrentHashMap()
 ) {
   companion object {
     fun fromAnalysis(file: KtFile, analysis: AnalysisResult): SyntheticDescriptorCache {
       val moduleDescriptor = analysis.moduleDescriptor
       val packageViewDescriptor = moduleDescriptor.getPackage(file.packageFqName)
-      val cache = SyntheticDescriptorCache(moduleDescriptor, file)
+      val cache = SyntheticDescriptorCache(moduleDescriptor)
       packageViewDescriptor.accept(
         MetaRecursiveVisitor(object : DeclarationDescriptorVisitorEmptyBodies<Unit, Unit>() {
           override fun visitDeclarationDescriptor(descriptor: DeclarationDescriptor?, data: Unit?) {
             descriptor?.let {
               if (descriptor.name !in blackList) {
-                if (descriptor is CallableMemberDescriptor) {
+                if (descriptor is CallableMemberDescriptor) { // constructors functions and properties
                   if (descriptor.ktFile()?.isMetaFile() == true && descriptor.kind != CallableMemberDescriptor.Kind.FAKE_OVERRIDE) {
                     println("Callable: Added to cache: ${descriptor.fqNameSafe}")
                     cache.descriptorCache[it.fqNameSafe] = it
                   }
-                } else if (descriptor is ClassDescriptor) {
+                } else if (descriptor is ClassDescriptor) { // constructors functions and properties
                   if (descriptor.ktFile()?.isMetaFile() == true) {
                     println("Class: Added to cache: ${descriptor.fqNameSafe}")
                     cache.descriptorCache[it.fqNameSafe] = it
                   }
-                } else if (descriptor is TypeAliasDescriptor) {
-                  if (descriptor.ktFile()?.isMetaFile() == true) {
-                    println("Class: Added to cache: ${descriptor.fqNameSafe}")
-                    cache.descriptorCache[it.fqNameSafe] = it
-                  }
-                } else if (descriptor is PackageViewDescriptor) {
+                } else if (descriptor is PackageViewDescriptor) { // constructors functions and properties
                   if (descriptor.ktFile()?.isMetaFile() == true) {
                     println("Package: Added to cache: ${descriptor.fqNameSafe}")
                     cache.descriptorCache[it.fqNameSafe] = it
@@ -125,13 +111,11 @@ private val VirtualFile.metaCacheId: CacheId
 
 class MetaIdeAnalyzer : MetaAnalyzer {
 
-  override fun ideProject(): Project? = currentProject()
-
   private val cache: ConcurrentHashMap<CacheId, SyntheticDescriptorCache> = ConcurrentHashMap()
 
   private val FILE_KEY = Key.create<VirtualFile>("FILE_KEY")
 
-  override fun DeclarationDescriptor?.isGenerated(): Boolean =
+  fun DeclarationDescriptor?.isGenerated(): Boolean =
     this?.findPsi()?.ktFile()?.name?.startsWith("_meta_") == true
 
   val DeclarationDescriptor?.syntheticCache: SyntheticDescriptorCache?
@@ -143,144 +127,124 @@ class MetaIdeAnalyzer : MetaAnalyzer {
     }
 
   override fun metaPackageFragments(
-    storageManager: StorageManager,
     module: ModuleDescriptor,
-    packageName: FqName
-  ): List<PackageFragmentDescriptor> {
-    val metaModule = module.cachedSyntheticModule()
-    val moduleCache = module.cache()
-    return if (metaModule != null && moduleCache != null && moduleCache.file.packageFqName == packageName) {
-      listOf(MetaPackageFramentDescriptor(metaModule, moduleCache, packageName))
-    } else emptyList()
-  }
-
-  private fun ModuleDescriptor.cachedSyntheticModule(): ModuleDescriptor? =
+    fqName: FqName
+  ): List<PackageFragmentDescriptor> =
     cache.values.firstOrNull {
-      it.module.name == name
-    }?.module
+      it.module.name == module.name
+    }?.module?.getPackage(fqName)?.fragments ?: emptyList()
 
-  private fun ModuleDescriptor.cache(): SyntheticDescriptorCache? =
-    cache.values.firstOrNull {
-      it.module.name == name
-    }
 
   override fun metaSubPackagesOf(
-    storageManager: StorageManager,
     module: ModuleDescriptor,
     fqName: FqName,
     nameFilter: (Name) -> Boolean
   ): Collection<FqName> =
-    cache.values.filter { it.file.packageFqName.asString().startsWith(fqName.asString()) && nameFilter(fqName.shortName()) }
-      .map { it.file.packageFqName }.toSet()
+    cache.values.firstOrNull {
+      it.module.name == module.name
+    }?.module?.getSubPackagesOf(fqName, nameFilter) ?: emptyList()
 
   override fun metaSyntheticFunctionNames(thisDescriptor: ClassDescriptor): List<Name> =
-    thisDescriptor.metaDescriptor()?.let { compiledDescriptor ->
-      compiledDescriptor.functionNames() - thisDescriptor.functionNamesFromPsi() - blackList
-    }?.toList() ?: emptyList()
-
-  private fun ClassDescriptor.functionNamesFromPsi(): Set<Name> =
-    findPsi().safeAs<KtClassOrObject>()?.functionNames()?.toSet() ?: emptySet()
+    thisDescriptor.syntheticCache?.let {
+      val compiledDescriptor = it.descriptorCache[thisDescriptor.fqNameSafe].safeAs<ClassDescriptor>()
+      compiledDescriptor?.let { classDescriptor ->
+        val originalNames = thisDescriptor.findPsi().safeAs<KtClassOrObject>()?.functionNames()?.toSet() ?: emptySet()
+        val diff = classDescriptor.unsubstitutedMemberScope.getFunctionNames().toList() - originalNames
+        diff - blackList
+      }
+    } ?: emptyList()
 
   override fun metaSyntheticNestedClassNames(thisDescriptor: ClassDescriptor): List<Name> =
-    thisDescriptor.metaDescriptor()?.let { compiledDescriptor ->
-      thisDescriptor.nestedClassNamesFromPsi() - compiledDescriptor.nestedClassNamesFromPsi()
+    thisDescriptor.syntheticCache?.let {
+      val compiledDescriptor = it.descriptorCache[thisDescriptor.fqNameSafe].safeAs<ClassDescriptor>()
+      compiledDescriptor?.let { classDescriptor ->
+        val originalNames = thisDescriptor.ktClassOrObject()?.nestedClassNames()?.toSet()?.map(Name::identifier) ?: emptyList()
+        val compiledNames = classDescriptor.ktClassOrObject()?.nestedClassNames()?.toSet()?.map(Name::identifier) ?: emptyList()
+        val diff = compiledNames - originalNames
+        diff
+      }
     } ?: emptyList()
-
-  private fun ClassDescriptor.nestedClassNamesFromPsi(): List<Name> =
-    ktClassOrObject()?.nestedClassNames()?.toSet()?.map(Name::identifier) ?: emptyList()
 
   override fun metaSyntheticMethods(name: Name, thisDescriptor: ClassDescriptor): List<SimpleFunctionDescriptor> =
-    thisDescriptor.metaDescriptor()?.let { compiledDescriptor ->
-      val compiledFunctions = compiledDescriptor.functions()
-      val originalFunctions = thisDescriptor.functionNames()
-      compiledFunctions.filter { cf ->
-        cf.name == name && cf.name !in originalFunctions && cf.name !in blackList
-      }.map { fn ->
-        fn.copy(
-          compiledDescriptor,
-          fn.modality,
-          fn.visibility,
-          CallableMemberDescriptor.Kind.SYNTHESIZED,
-          true
-        )
+    thisDescriptor.syntheticCache?.let {
+      val compiledDescriptor = it.descriptorCache[thisDescriptor.fqNameSafe].safeAs<ClassDescriptor>()
+      compiledDescriptor?.let {
+        val compiledFunctions = it.unsubstitutedMemberScope.getContributedDescriptors { true }.filterIsInstance<SimpleFunctionDescriptor>()
+        val originalFunctions = thisDescriptor.unsubstitutedMemberScope.getFunctionNames()
+        compiledFunctions.filter { cf ->
+          cf.name == name && cf.name !in originalFunctions && cf.name !in blackList
+        }.map { fn ->
+          fn.copy(
+            thisDescriptor,
+            fn.modality,
+            fn.visibility,
+            CallableMemberDescriptor.Kind.SYNTHESIZED,
+            true
+          )
+        }
       }
     } ?: emptyList()
-
-  private fun ClassDescriptor.functionNames(): Set<Name> =
-    ktClassOrObject()?.functionNames()?.toSet() ?: emptySet()
-
-  private fun ClassDescriptor.functions(): List<SimpleFunctionDescriptor> =
-    unsubstitutedMemberScope.getContributedDescriptors { true }.filterIsInstance<SimpleFunctionDescriptor>()
 
   override fun metaSyntheticProperties(name: Name, thisDescriptor: ClassDescriptor): List<PropertyDescriptor> =
-    thisDescriptor.metaDescriptor()?.let { compiledDescriptor ->
-      val compiledProperties = compiledDescriptor.properties()
-      val originalProperties = thisDescriptor.propertyNames()
-      compiledProperties.filter { cf ->
-        cf.name == name && cf.name !in originalProperties && cf.name !in blackList
-      }.mapNotNull { fn ->
-        fn.copy(
-          compiledDescriptor,
-          fn.modality,
-          fn.visibility,
-          CallableMemberDescriptor.Kind.SYNTHESIZED,
-          true
-        ).safeAs<PropertyDescriptor>()
+    thisDescriptor.syntheticCache?.let {
+      val compiledDescriptor = it.descriptorCache[thisDescriptor.fqNameSafe].safeAs<ClassDescriptor>()
+      compiledDescriptor?.let {
+        val compiledProperties = it.unsubstitutedMemberScope.getContributedDescriptors { true }.filterIsInstance<PropertyDescriptor>()
+        val originalProperties = thisDescriptor.unsubstitutedMemberScope.getVariableNames()
+        compiledProperties.filter { cf ->
+          cf.name == name && cf.name !in originalProperties && cf.name !in blackList
+        }.mapNotNull { fn ->
+          fn.copy(
+            thisDescriptor,
+            fn.modality,
+            fn.visibility,
+            CallableMemberDescriptor.Kind.SYNTHESIZED,
+            true
+          ).safeAs<PropertyDescriptor>()
+        }
       }
     } ?: emptyList()
-
-  private fun ClassDescriptor.propertyNames(): Set<Name> =
-    unsubstitutedMemberScope.getVariableNames()
-
-  private fun ClassDescriptor.properties(): List<PropertyDescriptor> =
-    unsubstitutedMemberScope.getContributedDescriptors { true }.filterIsInstance<PropertyDescriptor>()
 
   override fun metaSyntheticSupertypes(classDescriptor: ClassDescriptor): List<KotlinType> =
-    classDescriptor.metaDescriptor()?.let { compiled ->
-      val superTypes = TypeUtils.getAllSupertypes(compiled.defaultType)
-        .filter { tpe -> tpe != classDescriptor.module.builtIns.anyType }
-      superTypes
+    classDescriptor.syntheticCache?.let {
+      it.descriptorCache[classDescriptor.fqNameSafe].safeAs<ClassDescriptor>()?.let { compiled ->
+        val superTypes = TypeUtils.getAllSupertypes(compiled.defaultType)
+          .filter { tpe -> tpe != classDescriptor.module.builtIns.anyType }
+        superTypes
+      }
     } ?: emptyList()
-
-  private inline fun <reified A : DeclarationDescriptor> A.metaDescriptor(): A? =
-    syntheticCache?.run { descriptorCache[fqNameSafe] }.safeAs()
 
   override fun metaCompanionObjectNameIfNeeded(classDescriptor: ClassDescriptor): Name? =
-    classDescriptor.metaDescriptor()?.ktClassOrObject()?.companionObjects?.firstOrNull()?.nameAsSafeName
+    classDescriptor.syntheticCache?.let {
+      val compiledDescriptor = it.descriptorCache[classDescriptor.fqNameSafe].safeAs<ClassDescriptor>()
+      compiledDescriptor?.let { c ->
+        c.ktClassOrObject()?.companionObjects?.firstOrNull()?.nameAsSafeName
+      }
+    }
 
   override fun metaSyntheticPackageClasses(name: Name, packageDescriptor: PackageFragmentDescriptor, declarationProvider: PackageMemberDeclarationProvider): List<ClassDescriptor> =
-    packageDescriptor.metaDescriptor()?.let { compiled ->
-      val compiledClasses = compiled.classDescriptors()
-      val originalClasses = packageDescriptor.classifierNames()
-      compiledClasses.filter { cf ->
-        cf.name == name && cf.name !in originalClasses
+    packageDescriptor.syntheticCache?.let {
+      val compiledDescriptor = it.descriptorCache[packageDescriptor.fqNameSafe].safeAs<PackageFragmentDescriptor>()
+      compiledDescriptor?.let {
+        val compiledClasses = it.getMemberScope().getContributedDescriptors { true }.filterIsInstance<ClassDescriptor>()
+        val originalClasses = packageDescriptor.getMemberScope().getClassifierNames() ?: emptySet()
+        compiledClasses.filter { cf ->
+          cf.name == name && cf.name !in originalClasses
+        }
       }
     } ?: emptyList()
 
-  private fun PackageFragmentDescriptor.classifierNames(): Set<Name> =
-    getMemberScope().getClassifierNames() ?: emptySet()
-
-  private fun PackageFragmentDescriptor.classDescriptors(): List<ClassDescriptor> =
-    getMemberScope().getContributedDescriptors { true }.filterIsInstance<ClassDescriptor>()
-
-  override fun metaSyntheticClasses(
-    name: Name,
-    classDescriptor: ClassDescriptor,
-    declarationProvider: ClassMemberDeclarationProvider
-  ): List<ClassDescriptor> =
-    classDescriptor.metaDescriptor()?.let { compiled ->
-      val compiledClasses = compiled.classDescriptors()
-      val originalClasses = classDescriptor.classifierNames()
-      compiledClasses.filter { cf ->
-        cf.name == name && cf.name !in originalClasses
+  override fun metaSyntheticClasses(name: Name, classDescriptor: ClassDescriptor, declarationProvider: ClassMemberDeclarationProvider): List<ClassDescriptor> =
+    classDescriptor.syntheticCache?.let {
+      val compiledDescriptor = it.descriptorCache[classDescriptor.fqNameSafe].safeAs<ClassDescriptor>()
+      compiledDescriptor?.let {
+        val compiledClasses = it.unsubstitutedMemberScope.getContributedDescriptors { true }.filterIsInstance<ClassDescriptor>()
+        val originalClasses = classDescriptor.unsubstitutedMemberScope.getClassifierNames() ?: emptySet()
+        compiledClasses.filter { cf ->
+          cf.name == name && cf.name !in originalClasses
+        }
       }
     } ?: emptyList()
-
-  private fun ClassDescriptor.classifierNames(): Set<Name> =
-    unsubstitutedMemberScope.getClassifierNames() ?: emptySet()
-
-  private fun ClassDescriptor.classDescriptors(): List<ClassDescriptor> =
-    unsubstitutedMemberScope.getContributedDescriptors { true }.filterIsInstance<ClassDescriptor>()
 
   private fun Document.getFile(): VirtualFile? {
     val userMapField =
@@ -294,12 +258,11 @@ class MetaIdeAnalyzer : MetaAnalyzer {
 
   override fun KtFile.metaAnalysys(moduleInfo: ModuleInfo?): AnalysisResult {
     moduleInfo?.let { forcedModuleInfo = it }
-    return analyzeWithAllCompilerChecks().also {
-      it.moduleDescriptor.allDependencyModules
-    }
+    return analyzeWithAllCompilerChecks()
   }
 
   override fun <P : KtElement, K : KtElement, S> CompilerContext.subscribeToEditorHooks(
+    project: Project,
     quoteFactory: Quote.Factory<P, K, S>,
     match: K.() -> Boolean,
     map: S.(K) -> List<String>,
@@ -317,10 +280,9 @@ class MetaIdeAnalyzer : MetaAnalyzer {
 
           override fun fileOpened(source: FileEditorManager, file: VirtualFile) {
             println("FileEditorManagerListener.fileOpened: ${this@MetaIdeAnalyzer} $file")
-            file.document()?.let {
+            file.document(project)?.let {
               println("FileEditorManagerListener.fileOpened: populateSyntheticCache $it")
               populateSyntheticCache(it, transformation)
-              FileContentUtil.reparseFiles(file)
             }
             super.fileOpened(source, file)
           }
@@ -371,11 +333,6 @@ class MetaIdeAnalyzer : MetaAnalyzer {
 
           override fun beforeDocumentSaving(document: Document) {
             populateSyntheticCache(document, transformation)
-            document.getFile()?.let { file ->
-              file.refresh(true, true) {
-                println("$file refreshed")
-              }
-            }
             println("MetaOnFileSaveComponent.beforeDocumentSaving: ${this@MetaIdeAnalyzer} $document")
           }
         })
@@ -390,46 +347,11 @@ class MetaIdeAnalyzer : MetaAnalyzer {
         println("Added cache transformation: cache[${file.name}] $result")
       }
     }
-    dumpCacheInfo()
-  }
-
-  private fun dumpCacheInfo() {
-    println(cache.toList().map { (cacheId, descriptor) ->
-      "$cacheId : ${descriptor.descriptorCache.toList().joinToString { (fqName, descriptor) -> "\n$fqName: ${descriptor.name}" }}"
-    })
   }
 
 }
 
-private fun ClassDescriptor.synthetic(
-  editorDescriptor: ClassDescriptor,
-  parent: KtPureClassOrObject,
-  lazyClassContext: LazyClassContext,
-  declarationProvider: ClassMemberDeclarationProvider): SyntheticClassOrObjectDescriptor? =
-  when (this) {
-    is SyntheticClassOrObjectDescriptor -> this
-    is LazyClassDescriptor -> SyntheticClassOrObjectDescriptor(
-      c = lazyClassContext,
-      parentClassOrObject = parent,
-      containingDeclaration = containingDeclaration,
-      name = name,
-      source = editorDescriptor.source,
-      outerScope = declarationProvider.ownerInfo?.scopeAnchor?.let { anchor ->
-        lazyClassContext.declarationScopeProvider.getResolutionScopeForDeclaration(anchor)
-      }!!,
-      modality = modality,
-      visibility = visibility,
-      annotations = annotations,
-      constructorVisibility = constructors.firstOrNull()?.visibility ?: Visibilities.PUBLIC,
-      kind = kind,
-      isCompanionObject = isCompanionObject
-    ).also {
-      it.initialize(typeParameters = declaredTypeParameters)
-    }
-    else -> null
-  }
-
-fun VirtualFile.document(): Document? =
-  currentProject()?.let { toPsiFile(it)?.viewProvider?.document }
+fun VirtualFile.document(project: Project): Document? =
+  toPsiFile(project)?.viewProvider?.document
 
 

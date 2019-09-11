@@ -14,7 +14,6 @@ import org.jetbrains.kotlin.com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.kotlin.com.intellij.testFramework.LightVirtualFile
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.container.ComponentProvider
-import org.jetbrains.kotlin.container.ContainerConsistencyException
 import org.jetbrains.kotlin.container.get
 import org.jetbrains.kotlin.context.ProjectContext
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
@@ -37,7 +36,6 @@ import org.jetbrains.kotlin.psi.KtModifierListOwner
 import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.BindingTrace
-import org.jetbrains.kotlin.resolve.LazyTopDownAnalyzer
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
 import org.jetbrains.kotlin.resolve.checkers.DeclarationCheckerContext
 import org.jetbrains.kotlin.resolve.lazy.LazyClassContext
@@ -237,19 +235,15 @@ class CompilerContext(
   lateinit var module: ModuleDescriptor
   lateinit var files: Collection<KtFile>
   lateinit var componentProvider: ComponentProvider
-  private var metaAnalyzerField: MetaAnalyzer? = null
+  private lateinit var metaAnalyzerField: MetaAnalyzer
 
   val analyzer: MetaAnalyzer?
     get() = when {
-      metaAnalyzerField != null -> metaAnalyzerField
+      ::metaAnalyzerField.isInitialized -> metaAnalyzerField
       ::componentProvider.isInitialized -> {
         //TODO sometimes we get in here before the DI container has finished composing and it blows up
-        try {
-          metaAnalyzerField = componentProvider.get()
-          metaAnalyzerField
-        } catch (c: ContainerConsistencyException) {
-          null
-        }
+        metaAnalyzerField = componentProvider.get()
+        metaAnalyzerField
       }
       else -> null
     }

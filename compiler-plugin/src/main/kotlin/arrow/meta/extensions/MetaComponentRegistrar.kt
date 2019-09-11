@@ -307,18 +307,12 @@ interface MetaComponentRegistrar : ComponentRegistrar {
       }
     )
 
-  fun icnoProvider(isSuppressed: CompilerContext.(diagnostic: Diagnostic) -> Boolean): ExtensionPhase.DiagnosticsSuppressor =
-    object : ExtensionPhase.DiagnosticsSuppressor {
-      override fun CompilerContext.isSuppressed(diagnostic: Diagnostic): Boolean =
-        isSuppressed(diagnostic)
-    }
-
   fun Project.registerIdeHooks(): ExtensionPhase =
     ide {
       storageComponent(
         registerModuleComponents = { container, moduleDescriptor ->
           container.registerSingleton(Class.forName("arrow.meta.plugin.idea.MetaIdeAnalyzer"))
-          container.registerSingleton(Class.forName("arrow.meta.plugin.idea.MetaIdeIconProvider"))
+          container.registerSingleton(Class.forName("arrow.meta.plugin.idea.MetaIdeExtensionProvider"))
           //
         },
         check = { declaration, descriptor, context ->
