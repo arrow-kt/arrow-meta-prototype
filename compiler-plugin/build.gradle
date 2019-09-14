@@ -142,9 +142,3 @@ shadowJar {
 //com.intellij.projectConfigurable
 //org.jetbrains.kotlin.syntheticScopeProviderExtension
 //com.android.project.projectsystem
-
-patchPluginXml {
-  changeNotes """
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>"""
-}

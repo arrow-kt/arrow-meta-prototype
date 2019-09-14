@@ -5,7 +5,12 @@ import arrow.meta.extensions.ExtensionPhase
 import arrow.meta.extensions.MetaComponentRegistrar
 import arrow.meta.utils.cli
 import arrow.meta.utils.ide
+import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.TimerListener
+import com.intellij.openapi.extensions.BaseExtensionPointName
 import com.intellij.openapi.extensions.ExtensionPointName
+import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory
 import org.jetbrains.kotlin.analyzer.AnalysisResult
 import org.jetbrains.kotlin.analyzer.ModuleInfo
 import org.jetbrains.kotlin.com.intellij.openapi.editor.Document
@@ -152,7 +157,7 @@ inline fun <P : KtElement, reified K : KtElement, S, Q : Quote<P, K, S>> MetaAna
 }
 
 fun <E> MetaComponentRegistrar.extensionProvider( // ide source version
-  epName: ExtensionPointName<E>,
+  EP_NAME: ExtensionPointName<E>,
   impl: E
 ): ExtensionPhase =
   ide {
@@ -161,7 +166,7 @@ fun <E> MetaComponentRegistrar.extensionProvider( // ide source version
         analyzer?.run {
           project.let { project ->
             val providerRegistry = project?.getComponent(MetaExtensionProvider::class.java)
-            providerRegistry?.registerExtension(epName, impl)
+            providerRegistry?.registerExtension(EP_NAME, impl)
           }
         }
       },
@@ -171,7 +176,7 @@ fun <E> MetaComponentRegistrar.extensionProvider( // ide source version
   } ?: ExtensionPhase.Empty
 
 fun <E> MetaComponentRegistrar.extensionProvider( // kotlin source version
-  epName: EP<E>,
+  EP_NAME: EP<E>,
   impl: E
 ): ExtensionPhase =
   ide {
@@ -180,8 +185,111 @@ fun <E> MetaComponentRegistrar.extensionProvider( // kotlin source version
         analyzer?.run {
           project.let { project ->
             val providerRegistry = project?.getComponent(MetaExtensionProvider::class.java)
-            providerRegistry?.registerExtension(epName, impl)
+            providerRegistry?.registerExtension(EP_NAME, impl)
           }
+        }
+      },
+      check = { _, _, _ ->
+      }
+    )
+  } ?: ExtensionPhase.Empty
+
+fun MetaComponentRegistrar.extensionProviderForIntentions(
+  intention: IntentionAction,
+  category: String
+): ExtensionPhase =
+  ide {
+    storageComponent(
+      registerModuleComponents = { container, moduleDescriptor ->
+        analyzer?.run {
+          project.let { project ->
+            val providerRegistry = project?.getComponent(MetaIntentionExtensionProvider::class.java)
+            providerRegistry?.registerIntention(intention, category)
+          }
+        }
+      },
+      check = { _, _, _ ->
+      }
+    )
+  } ?: ExtensionPhase.Empty
+
+fun MetaComponentRegistrar.extensionProviderForSyntaxHighlighter(
+  syntaxHighlighterFactory: SyntaxHighlighterFactory
+): ExtensionPhase =
+  ide {
+    storageComponent(
+      registerModuleComponents = { container, moduleDescriptor ->
+        analyzer?.run {
+          project.let { project ->
+            val providerRegistry = project?.getComponent(MetaSyntaxHighlighterExtensionProvider::class.java)
+            providerRegistry?.registerSyntaxHighlighter(syntaxHighlighterFactory)
+          }
+        }
+      },
+      check = { _, _, _ ->
+      }
+    )
+  } ?: ExtensionPhase.Empty
+
+fun MetaComponentRegistrar.extensionProviderForAnAction(
+  registerAction: Pair<String, AnAction>? = null, //(actionId: String, action: AnAction)
+  unregisterActionById: String? = null,
+  replaceAction: Pair<String, AnAction>? = null, // (actionId: String, newAction: AnAction)
+  addTimerListener: Pair<Int, TimerListener>? = null, // (delay: Int, listener: TimerListener)
+  addTransparentTimerListener: Pair<Int, TimerListener>? = null, // (delay: Int, listener: TimerListener)
+  removeTimerListener: TimerListener? = null,
+  removeTransparentTimerListener: TimerListener? = null
+): ExtensionPhase =
+  ide {
+    storageComponent(
+      registerModuleComponents = { container, moduleDescriptor ->
+        analyzer?.run {
+          project.let { project ->
+            val providerRegistry = project?.getComponent(MetaAnActionExtensionProvider::class.java)
+            providerRegistry?.run {
+              addTimerListener?.let { addTimerListener(it.first, it.second) }
+              unregisterActionById?.let { unregisterAction(it) }
+              registerAction?.let { registerAction(it.first, it.second) }
+              replaceAction?.let { replaceAction(it.first, it.second) }
+              addTransparentTimerListener?.let { addTransparentTimerListener(it.first, it.second) }
+              removeTimerListener?.let { removeTimerListener(it) }
+              removeTransparentTimerListener?.let { removeTransparentTimerListener(it) }
+            }
+          }
+        }
+      },
+      check = { _, _, _ ->
+      }
+    )
+  } ?: ExtensionPhase.Empty
+
+fun <E> MetaComponentRegistrar.registerExtensionPoint(
+  EP_NAME: ExtensionPointName<E>,
+  aClass: Class<E>
+): ExtensionPhase =
+  ide {
+    storageComponent(
+      registerModuleComponents = { container, moduleDescriptor ->
+        analyzer?.run {
+          val extensionRegistry = project.getComponent(MetaExtensionPointProvider::class.java)
+          extensionRegistry.registerExtensionPoint(EP_NAME, aClass)
+        }
+      },
+      check = { _, _, _ ->
+      }
+    )
+  } ?: ExtensionPhase.Empty
+
+fun <E> MetaComponentRegistrar.registerExtensionPoint(
+  EP_NAME: BaseExtensionPointName,
+  aClass: Class<E>
+): ExtensionPhase =
+  ide {
+    storageComponent(
+      registerModuleComponents = { container, moduleDescriptor ->
+        analyzer?.run {
+          val extensionRegistry = project.getComponent(MetaExtensionPointProvider::class.java)
+          extensionRegistry.registerExtensionPoint(EP_NAME, aClass)
         }
       },
       check = { _, _, _ ->

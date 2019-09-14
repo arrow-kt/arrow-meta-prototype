@@ -313,13 +313,16 @@ interface MetaComponentRegistrar : ComponentRegistrar {
         registerModuleComponents = { container, moduleDescriptor ->
           container.registerSingleton(Class.forName("arrow.meta.plugin.idea.MetaIdeAnalyzer"))
           container.registerSingleton(Class.forName("arrow.meta.plugin.idea.MetaIdeExtensionProvider"))
+          container.registerSingleton(Class.forName("arrow.meta.plugin.idea.MetaIdeExtensionPointProvider"))
+          container.registerSingleton(Class.forName("arrow.meta.plugin.idea.MetaIdeIntentionExtensionProvider"))
+          container.registerSingleton(Class.forName("arrow.meta.plugin.idea.MetaIdeSyntaxHighlighterExtensionProvider"))
+          container.registerSingleton(Class.forName("arrow.meta.plugin.idea.MetaIdeAnActionExtensionProvider"))
           //
         },
         check = { declaration, descriptor, context ->
         }
       )
     } ?: ExtensionPhase.Empty
-
 
 
   fun syntheticResolver(

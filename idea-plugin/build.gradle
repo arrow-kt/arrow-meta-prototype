@@ -8,7 +8,7 @@ apply plugin: 'org.jetbrains.intellij'
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    // compileOnly "org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlin_version"
+    compileOnly "org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlin_version"
     compile project(path: ':compiler-plugin', configuration: 'shadow')
 }
 
