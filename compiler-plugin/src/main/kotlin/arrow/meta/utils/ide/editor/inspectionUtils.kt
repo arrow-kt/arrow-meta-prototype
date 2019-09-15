@@ -3,8 +3,10 @@ package arrow.meta.utils.ide.editor
 import com.intellij.codeHighlighting.HighlightDisplayLevel
 import com.intellij.codeInspection.InspectionEP
 import com.intellij.codeInspection.InspectionSuppressor
+import com.intellij.codeInspection.LanguageInspectionSuppressors
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.codeInspection.SuppressQuickFix
+import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
@@ -19,7 +21,7 @@ import org.jetbrains.kotlin.psi.KtElement
 fun addInspection(
   inspection: LocalInspectionTool,
   shortName: String,
-  defaultLevel: HighlightDisplayLevel,
+  defaultLevel: HighlightDisplayLevel = HighlightDisplayLevel(HighlightSeverity.INFORMATION),
   defaultShortName: String? = null,
   groupDisplayName: String? = null,
   defaultGroupDisplayName: String? = null,
@@ -81,8 +83,7 @@ inline fun <reified K : KtElement> addApplicableInspection(
   }
 
 /**
- * TODO: Add or Find InspectionSuppressor EP_NAME if not pull the InspectionManager
- * alt.: val EP_NAME = ExtensionPointName<InspectionSuppressor>("com.intellij.codeInspection.InspectionSuppressor")
+ * Use [LanguageInspectionSuppressors]
  */
 fun addInspectionSuppressor(
   suppressFor: (element: PsiElement, toolId: String) -> Boolean,

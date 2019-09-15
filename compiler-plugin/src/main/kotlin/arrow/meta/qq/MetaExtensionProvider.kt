@@ -2,6 +2,7 @@ package arrow.meta.qq
 
 import com.intellij.codeInsight.ContainerProvider
 import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.lang.LanguageExtension
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.TimerListener
 import com.intellij.openapi.extensions.ExtensionPointName
@@ -9,12 +10,17 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory
 import org.jetbrains.kotlin.diagnostics.Diagnostic
 import org.jetbrains.kotlin.resolve.diagnostics.DiagnosticSuppressor
 import com.intellij.psi.PsiElement as Psi
+import org.jetbrains.kotlin.com.intellij.lang.LanguageExtension as LE
 import org.jetbrains.kotlin.com.intellij.openapi.extensions.ExtensionPointName as EP
 
 interface MetaExtensionProvider {
-  fun <E> registerExtension(epName: ExtensionPointName<E>, impl: E): Unit?
+  fun <E> addExtension(EP_Name: ExtensionPointName<E>, impl: E): Unit?
 
-  fun <E> registerExtension(epName: EP<E>, impl: E): Unit?
+  fun <E> addExtension(EP_Name: EP<E>, impl: E): Unit?
+
+  fun <E> addLanguageExtension(LE: LanguageExtension<E>, impl: E): Unit?
+
+  fun <E> addLanguageExtension(LE: LE<E>, impl: E): Unit?
 
   companion object {
 
@@ -32,11 +38,13 @@ interface MetaExtensionProvider {
 }
 
 interface MetaIntentionExtensionProvider {
-  fun registerIntention(intention: IntentionAction, category: String): Unit?
+  fun addIntention(intention: IntentionAction, category: String): Unit?
+  fun addIntention(intention: IntentionAction): Unit?
+  fun unregisterIntention(intention: IntentionAction): Unit?
 }
 
 interface MetaSyntaxHighlighterExtensionProvider {
-  fun registerSyntaxHighlighter(syntaxHighlighterFactory: SyntaxHighlighterFactory): Unit?
+  fun addSyntaxHighlighter(syntaxHighlighterFactory: SyntaxHighlighterFactory): Unit?
 }
 
 interface MetaAnActionExtensionProvider {

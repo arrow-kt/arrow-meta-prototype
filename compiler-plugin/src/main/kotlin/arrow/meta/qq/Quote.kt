@@ -6,6 +6,7 @@ import arrow.meta.extensions.MetaComponentRegistrar
 import arrow.meta.utils.cli
 import arrow.meta.utils.ide
 import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.lang.LanguageExtension
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.TimerListener
 import com.intellij.openapi.extensions.BaseExtensionPointName
@@ -58,6 +59,7 @@ import org.jetbrains.kotlin.types.KotlinTypeFactory
 import org.jetbrains.kotlin.types.TypeProjectionImpl
 import org.jetbrains.kotlin.types.Variance
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
+import org.jetbrains.kotlin.com.intellij.lang.LanguageExtension as LE
 import org.jetbrains.kotlin.com.intellij.openapi.extensions.ExtensionPointName as EP
 
 /**
@@ -166,7 +168,7 @@ fun <E> MetaComponentRegistrar.extensionProvider( // ide source version
         analyzer?.run {
           project.let { project ->
             val providerRegistry = project?.getComponent(MetaExtensionProvider::class.java)
-            providerRegistry?.registerExtension(EP_NAME, impl)
+            providerRegistry?.addExtension(EP_NAME, impl)
           }
         }
       },
@@ -185,7 +187,7 @@ fun <E> MetaComponentRegistrar.extensionProvider( // kotlin source version
         analyzer?.run {
           project.let { project ->
             val providerRegistry = project?.getComponent(MetaExtensionProvider::class.java)
-            providerRegistry?.registerExtension(EP_NAME, impl)
+            providerRegistry?.addExtension(EP_NAME, impl)
           }
         }
       },
@@ -194,9 +196,52 @@ fun <E> MetaComponentRegistrar.extensionProvider( // kotlin source version
     )
   } ?: ExtensionPhase.Empty
 
+fun <E> MetaComponentRegistrar.extensionProvider( // ide source version
+  LE: LanguageExtension<E>,
+  impl: E
+): ExtensionPhase =
+  ide {
+    storageComponent(
+      registerModuleComponents = { container, moduleDescriptor ->
+        analyzer?.run {
+          project.let { project ->
+            val providerRegistry = project?.getComponent(MetaExtensionProvider::class.java)
+            providerRegistry?.addLanguageExtension(LE, impl)
+          }
+        }
+      },
+      check = { _, _, _ ->
+      }
+    )
+  } ?: ExtensionPhase.Empty
+
+fun <E> MetaComponentRegistrar.extensionProvider( // kotlin source version
+  LE: LE<E>,
+  impl: E
+): ExtensionPhase =
+  ide {
+    storageComponent(
+      registerModuleComponents = { container, moduleDescriptor ->
+        analyzer?.run {
+          project.let { project ->
+            val providerRegistry = project?.getComponent(MetaExtensionProvider::class.java)
+            providerRegistry?.addLanguageExtension(LE, impl)
+          }
+        }
+      },
+      check = { _, _, _ ->
+      }
+    )
+  } ?: ExtensionPhase.Empty
+
+/**
+ * @param intentionWithMetadata (category, intention)
+ *
+ */
 fun MetaComponentRegistrar.extensionProviderForIntentions(
-  intention: IntentionAction,
-  category: String
+  intentionWithMetadata: Pair<String, IntentionAction>? = null,
+  AddIntention: IntentionAction? = null,
+  UnregisterIntention: IntentionAction? = null
 ): ExtensionPhase =
   ide {
     storageComponent(
@@ -204,7 +249,11 @@ fun MetaComponentRegistrar.extensionProviderForIntentions(
         analyzer?.run {
           project.let { project ->
             val providerRegistry = project?.getComponent(MetaIntentionExtensionProvider::class.java)
-            providerRegistry?.registerIntention(intention, category)
+            providerRegistry?.run {
+              intentionWithMetadata?.let { addIntention(it.second, it.first) }
+              AddIntention?.let { addIntention(it) }
+              UnregisterIntention?.let { unregisterIntention(it) }
+            }
           }
         }
       },
@@ -222,7 +271,7 @@ fun MetaComponentRegistrar.extensionProviderForSyntaxHighlighter(
         analyzer?.run {
           project.let { project ->
             val providerRegistry = project?.getComponent(MetaSyntaxHighlighterExtensionProvider::class.java)
-            providerRegistry?.registerSyntaxHighlighter(syntaxHighlighterFactory)
+            providerRegistry?.addSyntaxHighlighter(syntaxHighlighterFactory)
           }
         }
       },
@@ -231,12 +280,18 @@ fun MetaComponentRegistrar.extensionProviderForSyntaxHighlighter(
     )
   } ?: ExtensionPhase.Empty
 
+/**
+ * @param registerAction (actionId: String, action: AnAction)
+ * @param replaceAction (actionId: String, newAction: AnAction)
+ * @param addTimerListener (delay: Int, listener: TimerListener)
+ * @param addTransparentTimerListener (delay: Int, listener: TimerListener)
+ */
 fun MetaComponentRegistrar.extensionProviderForAnAction(
-  registerAction: Pair<String, AnAction>? = null, //(actionId: String, action: AnAction)
+  registerAction: Pair<String, AnAction>? = null,
   unregisterActionById: String? = null,
-  replaceAction: Pair<String, AnAction>? = null, // (actionId: String, newAction: AnAction)
-  addTimerListener: Pair<Int, TimerListener>? = null, // (delay: Int, listener: TimerListener)
-  addTransparentTimerListener: Pair<Int, TimerListener>? = null, // (delay: Int, listener: TimerListener)
+  replaceAction: Pair<String, AnAction>? = null,
+  addTimerListener: Pair<Int, TimerListener>? = null,
+  addTransparentTimerListener: Pair<Int, TimerListener>? = null,
   removeTimerListener: TimerListener? = null,
   removeTransparentTimerListener: TimerListener? = null
 ): ExtensionPhase =

@@ -14,7 +14,8 @@ import javax.swing.Icon
  */
 fun addLineMarkerProvider(
   matchOn: (element: PsiElement) -> Boolean,
-  lineMarkerInfo: (element: PsiElement) -> LineMarkerInfo<PsiElement>?
+  slowLineMarker: (element: PsiElement) -> LineMarkerInfo<PsiElement>?,
+  lineMarkerInfo: (element: PsiElement) -> LineMarkerInfo<PsiElement>? = { _ -> null }
 ): LineMarkerProvider =
   object : LineMarkerProvider {
     override fun getLineMarkerInfo(element: PsiElement): LineMarkerInfo<PsiElement>? =
@@ -24,7 +25,7 @@ fun addLineMarkerProvider(
       for (element in elements) {
         ProgressManager.checkCanceled()
         if (matchOn(element)) {
-          lineMarkerInfo(element)?.let { result.add(it) }
+          slowLineMarker(element)?.let { result.add(it) }
         }
       }
     }
@@ -34,7 +35,7 @@ fun lineMarkerInfo(
   icon: Icon,
   element: PsiElement,
   message: String,
-  placed: GutterIconRenderer.Alignment
+  placed: GutterIconRenderer.Alignment = GutterIconRenderer.Alignment.LEFT
   // nav: GutterIconNavigationHandler<*>? = null TODO
 ): LineMarkerInfo<PsiElement> =
   object : LineMarkerInfo<PsiElement>(

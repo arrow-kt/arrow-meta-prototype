@@ -75,7 +75,7 @@ fun addAnAction(
   }
 
 fun addAnAction(
-  text: String,
+  title: String,
   actionPerformed: (e: AnActionEvent) -> Unit,
   displayTextInToolbar: Boolean = false,
   setInjectedContext: (worksInInjected: Boolean) -> Boolean = { it },
@@ -85,7 +85,43 @@ fun addAnAction(
   getTemplateText: String? = null,
   beforeActionPerformedUpdate: (e: AnActionEvent) -> Unit
 ): AnAction =
-  object : AnAction(text) {
+  object : AnAction(title) {
+      override fun actionPerformed(e: AnActionEvent) = actionPerformed(e)
+      override fun displayTextInToolbar(): Boolean = displayTextInToolbar
+
+      override fun setInjectedContext(worksInInjected: Boolean) =
+        super.setInjectedContext(setInjectedContext(worksInInjected))
+
+      override fun update(e: AnActionEvent) = update(e)
+
+      override fun useSmallerFontForTextInToolbar(): Boolean =
+        useSmallerFontForTextInToolbar
+
+      override fun startInTransaction(): Boolean =
+        startInTransaction
+
+      override fun getTemplateText(): String? {
+          return getTemplateText ?: super.getTemplateText()
+      }
+
+      override fun beforeActionPerformedUpdate(e: AnActionEvent) =
+        beforeActionPerformedUpdate(e)
+  }
+
+fun addAnAction(
+  title: String,
+  description: String,
+  icon: Icon,
+  actionPerformed: (e: AnActionEvent) -> Unit,
+  displayTextInToolbar: Boolean = false,
+  setInjectedContext: (worksInInjected: Boolean) -> Boolean = { it },
+  update: (e: AnActionEvent) -> Unit = { _ -> },
+  useSmallerFontForTextInToolbar: Boolean = false,
+  startInTransaction: Boolean = false,
+  getTemplateText: String? = null,
+  beforeActionPerformedUpdate: (e: AnActionEvent) -> Unit
+): AnAction =
+  object : AnAction(title, description, icon) {
     override fun actionPerformed(e: AnActionEvent) = actionPerformed(e)
     override fun displayTextInToolbar(): Boolean = displayTextInToolbar
 
