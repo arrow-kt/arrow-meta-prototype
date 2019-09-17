@@ -20,8 +20,6 @@ import org.jetbrains.kotlin.com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.PsiManager
 import org.jetbrains.kotlin.com.intellij.psi.SingleRootFileViewProvider
-import org.jetbrains.kotlin.container.get
-import org.jetbrains.kotlin.container.getService
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
@@ -234,11 +232,10 @@ fun <E> MetaComponentRegistrar.extensionProvider( // kotlin source version
   } ?: ExtensionPhase.Empty
 
 /**
- * @param intentionWithMetadata (category, intention)
- *
+ * @param AddIntentionWithMetadata (category, intention)
  */
 fun MetaComponentRegistrar.extensionProviderForIntentions(
-  intentionWithMetadata: Pair<String, IntentionAction>? = null,
+  AddIntentionWithMetadata: Pair<String, IntentionAction>? = null,
   AddIntention: IntentionAction? = null,
   UnregisterIntention: IntentionAction? = null
 ): ExtensionPhase =
@@ -249,7 +246,7 @@ fun MetaComponentRegistrar.extensionProviderForIntentions(
           project.let { project ->
             val providerRegistry = project?.getComponent(MetaIntentionExtensionProvider::class.java)
             providerRegistry?.run {
-              intentionWithMetadata?.let { addIntention(it.second, it.first) }
+              AddIntentionWithMetadata?.let { addIntention(it.second, it.first) }
               AddIntention?.let { addIntention(it) }
               UnregisterIntention?.let { unregisterIntention(it) }
             }
@@ -262,7 +259,8 @@ fun MetaComponentRegistrar.extensionProviderForIntentions(
   } ?: ExtensionPhase.Empty
 
 fun MetaComponentRegistrar.extensionProviderForSyntaxHighlighter(
-  syntaxHighlighterFactory: SyntaxHighlighterFactory
+  AddSyntaxHighlighter: SyntaxHighlighterFactory? = null,
+  RemoveSyntaxHighlighter: SyntaxHighlighterFactory? = null
 ): ExtensionPhase =
   ide {
     storageComponent(
@@ -270,7 +268,10 @@ fun MetaComponentRegistrar.extensionProviderForSyntaxHighlighter(
         analyzer?.run {
           project.let { project ->
             val providerRegistry = project?.getComponent(MetaSyntaxHighlighterExtensionProvider::class.java)
-            providerRegistry?.addSyntaxHighlighter(syntaxHighlighterFactory)
+            providerRegistry?.run {
+              AddSyntaxHighlighter?.let { addSyntaxHighlighter(it) }
+              RemoveSyntaxHighlighter?.let { removeSyntaxHighlighter(it) }
+            }
           }
         }
       },

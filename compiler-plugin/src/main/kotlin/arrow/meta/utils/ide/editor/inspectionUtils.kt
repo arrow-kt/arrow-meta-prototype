@@ -12,11 +12,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.idea.inspections.AbstractApplicabilityBasedInspection
+import org.jetbrains.kotlin.idea.inspections.AbstractKotlinInspection
 import org.jetbrains.kotlin.psi.KtElement
 
 /**
  * [InspectionEP.GLOBAL_INSPECTION]
- * @param inspection can be used with #addApplicableInspection
+ * @param inspection can be used with #addApplicableInspection.
+ * More General Inspections can be build with [AbstractKotlinInspection] e.g.: [org.jetbrains.kotlin.idea.inspections.RedundantSuspendModifierInspection]
  */
 fun addInspection(
   inspection: LocalInspectionTool,

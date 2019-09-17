@@ -48,6 +48,9 @@ class MetaIdeIntentionExtensionProvider : MetaIntentionExtensionProvider {
 class MetaIdeSyntaxHighlighterExtensionProvider : MetaSyntaxHighlighterExtensionProvider {
   override fun addSyntaxHighlighter(syntaxHighlighterFactory: SyntaxHighlighterFactory) =
     currentProject()?.getComponent(SyntaxHighlighterFactory.LANGUAGE_FACTORY::class.java)?.addExplicitExtension(KotlinLanguage.INSTANCE, syntaxHighlighterFactory)
+
+  override fun removeSyntaxHighlighter(syntaxHighlighterFactory: SyntaxHighlighterFactory): Unit? =
+    currentProject()?.getComponent(SyntaxHighlighterFactory.LANGUAGE_FACTORY::class.java)?.removeExplicitExtension(KotlinLanguage.INSTANCE, syntaxHighlighterFactory)
 }
 
 class MetaIdeAnActionExtensionProvider : MetaAnActionExtensionProvider {

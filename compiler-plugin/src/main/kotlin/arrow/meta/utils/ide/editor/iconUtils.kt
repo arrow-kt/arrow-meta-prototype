@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import javax.swing.Icon
 
 /**
+ * Used for FileIcons and Icons viewed in StructureView
  * extensionProvider(
  *  epName = IconProvider.EXTENSION_POINT_NAME,
  *   impl = addIcon(KotlinIcons.SUSPEND_CALL) { psiElement, flag ->

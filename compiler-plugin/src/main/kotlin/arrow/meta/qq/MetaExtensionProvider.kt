@@ -45,6 +45,7 @@ interface MetaIntentionExtensionProvider {
 
 interface MetaSyntaxHighlighterExtensionProvider {
   fun addSyntaxHighlighter(syntaxHighlighterFactory: SyntaxHighlighterFactory): Unit?
+  fun removeSyntaxHighlighter(syntaxHighlighterFactory: SyntaxHighlighterFactory): Unit?
 }
 
 interface MetaAnActionExtensionProvider {

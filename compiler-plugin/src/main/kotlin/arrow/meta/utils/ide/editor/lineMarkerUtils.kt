@@ -9,7 +9,7 @@ import com.intellij.psi.PsiElement
 import javax.swing.Icon
 
 /**
- * This technique adds an LineMarker on the specified side similar to the Recursive Kotlin Icon or Suspended Icon
+ * This technique adds an LineMarker on the specified PsiElement similar to the Recursive Kotlin Icon or Suspended Icon
  * TODO: Add more Techniques such as the one from Elm
  */
 fun addLineMarkerProvider(
